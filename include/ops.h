@@ -25,6 +25,3 @@ Tensor Softmax(const Tensor& x);
 Tensor SwiGlu(const Tensor& gate, const Tensor& up);
 // 对当前 token 的 q、k 原地施加旋转位置编码（RoPE)
 void Rope(Tensor& q, Tensor& k, size_t pos, float theta, RopeType rope_type = RopeType::Normal);
-
-void NormalRope(Tensor& x, size_t pos, float theta);
-void NormalNeoX(Tensor& x, size_t pos, float theta);

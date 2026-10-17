@@ -10,6 +10,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(mini_llama STATIC
     src/tensor.cpp
     src/ops.cpp
+    src/tokenizer/ascii_tokenizer.cpp
+    src/tokenizer/json_vocab_tokenizer.cpp
+    src/tokenizer/bpe_tokenizer.cpp
 )
 
 target_include_directories(mini_llama PUBLIC

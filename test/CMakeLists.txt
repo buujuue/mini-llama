@@ -20,6 +20,10 @@ target_link_libraries(tensor_tests PRIVATE mini_llama GTest::gtest_main)
 add_executable(ops_tests test_ops.cpp)
 target_link_libraries(ops_tests PRIVATE mini_llama GTest::gtest_main)
 
+add_executable(tokenizer_tests test_tokenizer.cpp)
+target_link_libraries(tokenizer_tests PRIVATE mini_llama GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(tensor_tests PROPERTIES TIMEOUT 10)
 gtest_discover_tests(ops_tests PROPERTIES TIMEOUT 10 LABELS ops)
+gtest_discover_tests(tokenizer_tests PROPERTIES TIMEOUT 10 LABELS tokenizer)
