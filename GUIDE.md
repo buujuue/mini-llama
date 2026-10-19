@@ -8,7 +8,7 @@ mini_llama/
 ├── GUIDE.md                       # 本文件：本地目录导航
 ├── README.md                      # 项目简介
 ├── CONTRIBUTING.md                # 项目提交规范、验证要求与 PR 审核流程
-├── THIRD_PARTY_NOTICES.md          # 移植课程 tokenizer 源码与测试的 MIT 许可
+├── THIRD_PARTY_NOTICES.md          # 移植课程 tokenizer 源码与 tokenizer/KV cache 测试的 MIT 许可
 ├── CMakeLists.txt                 # C++17 静态库与 CTest 测试入口
 ├── .gitignore                     # 本地资料、配置和产物的忽略规则
 ├── .vscode/                       # Git 忽略：本地 VSCode 配置
@@ -21,20 +21,25 @@ mini_llama/
 │           └── agents/openai.yaml  # 禁止自动调用的策略
 ├── include/                       # 自己实现的头文件
 │   ├── tensor.h                    # Tensor：构造、元信息/数据查询、通用/1D–4D 访问和行指针
-│   ├── ops.h                       # 六个 F32 基础算子的接口、RoPE 辅助函数、形状约定与 RopeType
+│   ├── tool.h                      # 公共类型与编译期常量，当前定义 RopeType
+│   ├── ops.h                       # 六个 F32 基础算子的接口、RoPE 辅助函数与形状约定
+│   ├── model.h                     # ModelConfig、LayerWeights 与 MiniLlamaModel 的 F32 结构占位，加载逻辑待实现
+│   ├── kv_cache.h                  # KvCache 写入与按层、位置、KV 头读取指针的接口
 │   └── tokenizer.h                 # ITokenizer、ASCII/JSON/BPE tokenizer 与创建接口
 ├── src/                           # 自己实现的源文件
 │   ├── tensor.cpp                  # Tensor 实现与形状、索引检查
 │   ├── ops.cpp                     # Matmul/Linear Naive 实现，以及 RmsNorm、Softmax、SwiGlu、Rope
+│   ├── kv_cache.cpp                # KV cache 实现；当前仅在 kv_cache_tests 中编译
 │   └── tokenizer/                 # 已接入静态库的 tokenizer 实现
 │       ├── ascii_tokenizer.cpp     # ASCII 编码与解码
 │       ├── json_vocab_tokenizer.cpp # JSON 词表加载、最长匹配编码、解码与 ASCII 回退工厂
 │       └── bpe_tokenizer.cpp       # BPE 加载、字节映射、合并、特殊 token、解码与工厂
 ├── test/                          # GoogleTest 单元测试
-│   ├── CMakeLists.txt              # 下载 GoogleTest、构建三个测试程序并注册 CTest
+│   ├── CMakeLists.txt              # 下载 GoogleTest、构建四个测试程序并注册 CTest
 │   ├── test_tensor.cpp             # Tensor 正常行为、const 访问与边界测试
 │   ├── test_ops.cpp                # 六个已实现基础算子的数值、形状与边界验收，CTest 标签 ops
-│   └── test_tokenizer.cpp          # ASCII/JSON/BPE 与工厂测试，自建词表，CTest 标签 tokenizer
+│   ├── test_tokenizer.cpp          # ASCII/JSON/BPE 与工厂测试，自建词表，CTest 标签 tokenizer
+│   └── test_kv_cache.cpp           # 移植课程 KV cache 的 6 项测试，CTest 标签 kv_cache
 ├── docs/                          # Git 忽略：本地文档
 │   ├── agents/                    # 工程技能使用的本地约定
 │   └── source/
@@ -48,7 +53,8 @@ mini_llama/
 │   │   ├── _deps/                  # CMake 下载的 GoogleTest 源码和构建产物
 │   │   ├── test/tensor_tests.exe   # Tensor 测试程序
 │   │   ├── test/ops_tests.exe      # 基础算子测试程序
-│   │   └── test/tokenizer_tests.exe # tokenizer 测试程序
+│   │   ├── test/tokenizer_tests.exe # tokenizer 测试程序
+│   │   └── test/kv_cache_tests.exe # KV cache 测试程序
 │   ├── windows-no-tests/           # 验证 BUILD_TESTING=OFF 的纯库构建
 │   └── .npm-cache/                # 文档检索工具的本地缓存
 ├── compile_commands.json          # Git 忽略：编译命令数据库

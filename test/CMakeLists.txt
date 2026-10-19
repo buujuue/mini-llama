@@ -23,7 +23,12 @@ target_link_libraries(ops_tests PRIVATE mini_llama GTest::gtest_main)
 add_executable(tokenizer_tests test_tokenizer.cpp)
 target_link_libraries(tokenizer_tests PRIVATE mini_llama GTest::gtest_main)
 
+# KV cache 尚未加入静态库，仅在测试目标中编译现有实现。
+add_executable(kv_cache_tests test_kv_cache.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
+target_link_libraries(kv_cache_tests PRIVATE mini_llama GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(tensor_tests PROPERTIES TIMEOUT 10)
 gtest_discover_tests(ops_tests PROPERTIES TIMEOUT 10 LABELS ops)
 gtest_discover_tests(tokenizer_tests PROPERTIES TIMEOUT 10 LABELS tokenizer)
+gtest_discover_tests(kv_cache_tests PROPERTIES TIMEOUT 10 LABELS kv_cache)

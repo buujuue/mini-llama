@@ -2,14 +2,7 @@
 
 #include <cstddef>
 #include "tensor.h"
-
-// Normal: (0, 1), (2, 3)
-// NeoX: (0, half), (1, half + 1)
-enum class RopeType {
-    Normal,
-    NeoX,
-};
-
+#include "tool.h"  //RopeType
 
 // a: [M, K]，b: [K, N]，返回 [M, N]，计算 a * b。
 Tensor Matmul(const Tensor& a, const Tensor& b);

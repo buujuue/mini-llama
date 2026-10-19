@@ -36,7 +36,7 @@ void KvCache::Write(size_t layer, size_t pos, Tensor& k, Tensor& v){
     const auto& k_shape = k.GetShape();
     const auto& v_shape = v.GetShape();
     if (k.GetNumDims() != 2 || v.GetNumDims() != 2 || k_shape != v_shape){
-        throw std::runtime_error(
+        throw std::out_of_range(
             "KvCache::Write 要求 k 和 v 均为形状相同的二维张量 [kv_heads_num, head_dim]："
             "预期维数: 2，k 维数: " + std::to_string(k.GetNumDims())
             + "，k shape: " + ShapeToString(k)
@@ -60,7 +60,7 @@ void KvCache::Write(size_t layer, size_t pos, Tensor& k, Tensor& v){
             + ")，keys_ shape: " + ShapeToString(keys_) + "。");
     }  
     if (kv_heads_num != shape[2] || head_dim != shape[3]){
-        throw std::runtime_error(
+        throw std::out_of_range(
             "KvCache::Write 的输入形状与缓存不匹配：预期 [kv_heads_num, head_dim]: ["
             + std::to_string(shape[2]) + ", " + std::to_string(shape[3])
             + "]，实际 kv_heads_num: " + std::to_string(kv_heads_num)
