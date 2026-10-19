@@ -1,7 +1,3 @@
-// Copyright (c) 2026 yus3nable
-// SPDX-License-Identifier: MIT
-// 由 mini-llama-cpp 移植并适配，许可见 THIRD_PARTY_NOTICES.md。
-
 #pragma once
 
 #include <algorithm>
