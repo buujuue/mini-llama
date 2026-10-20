@@ -7,7 +7,6 @@
 #include "tensor.h"
 #include "tool.h"
 
-// Forward 阶段的结构占位；权重初始化与加载留到“模型格式与 Loader”章节。
 struct ModelConfig {
     size_t vocab_size = 128;
     size_t dim = 32;
