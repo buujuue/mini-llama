@@ -6,7 +6,7 @@
 
 class KvCache {
 public:
-    KvCache() = delete;
+    KvCache() = default;
     // layer: 层数, seq_len_max: 最大token数, kv_heads_num: KV头数, head_dim: 头的向量数
     KvCache(size_t layers_num, size_t seq_len_max, size_t kv_heads_num, size_t head_dim);
     

@@ -8,7 +8,7 @@ mini_llama/
 ├── GUIDE.md                       # 本文件：本地目录导航
 ├── README.md                      # 项目简介
 ├── CONTRIBUTING.md                # 项目提交规范、验证要求与 PR 审核流程
-├── THIRD_PARTY_NOTICES.md          # 移植课程 tokenizer 源码与 tokenizer/KV cache 测试的 MIT 许可
+├── THIRD_PARTY_NOTICES.md          # 移植课程 tokenizer/RadixTree 源码与相关测试的 MIT 许可
 ├── CMakeLists.txt                 # C++17 静态库与 CTest 测试入口
 ├── .gitignore                     # 本地资料、配置和产物的忽略规则
 ├── .vscode/                       # Git 忽略：本地 VSCode 配置
@@ -25,21 +25,24 @@ mini_llama/
 │   ├── ops.h                       # 六个 F32 基础算子的接口、RoPE 辅助函数与形状约定
 │   ├── model.h                     # ModelConfig、LayerWeights 与 MiniLlamaModel 的 F32 结构占位，加载逻辑待实现
 │   ├── kv_cache.h                  # KvCache 写入与按层、位置、KV 头读取指针的接口
+│   ├── radix_tree.h                # RadixTree：token 压缩前缀树、去重计数与最长公共前缀查询
 │   └── tokenizer.h                 # ITokenizer、ASCII/JSON/BPE tokenizer 与创建接口
 ├── src/                           # 自己实现的源文件
 │   ├── tensor.cpp                  # Tensor 实现与形状、索引检查
 │   ├── ops.cpp                     # Matmul/Linear Naive 实现，以及 RmsNorm、Softmax、SwiGlu、Rope
 │   ├── kv_cache.cpp                # KV cache 实现；当前仅在 kv_cache_tests 中编译
+│   ├── radix_tree.cpp              # 已接入静态库的 RadixTree 实现，支持节点分裂、清空和移动
 │   └── tokenizer/                 # 已接入静态库的 tokenizer 实现
 │       ├── ascii_tokenizer.cpp     # ASCII 编码与解码
 │       ├── json_vocab_tokenizer.cpp # JSON 词表加载、最长匹配编码、解码与 ASCII 回退工厂
 │       └── bpe_tokenizer.cpp       # BPE 加载、字节映射、合并、特殊 token、解码与工厂
 ├── test/                          # GoogleTest 单元测试
-│   ├── CMakeLists.txt              # 下载 GoogleTest、构建四个测试程序并注册 CTest
+│   ├── CMakeLists.txt              # 下载 GoogleTest、构建五个测试程序并注册 CTest
 │   ├── test_tensor.cpp             # Tensor 正常行为、const 访问与边界测试
 │   ├── test_ops.cpp                # 六个已实现基础算子的数值、形状与边界验收，CTest 标签 ops
 │   ├── test_tokenizer.cpp          # ASCII/JSON/BPE 与工厂测试，自建词表，CTest 标签 tokenizer
-│   └── test_kv_cache.cpp           # 移植课程 KV cache 的 6 项测试，CTest 标签 kv_cache
+│   ├── test_kv_cache.cpp           # 移植课程 KV cache 的 6 项测试，CTest 标签 kv_cache
+│   └── test_radix_tree.cpp         # RadixTree 的 8 项移植测试及 7 项补充测试，CTest 标签 radix_tree
 ├── docs/                          # Git 忽略：本地文档
 │   ├── agents/                    # 工程技能使用的本地约定
 │   └── source/
@@ -49,12 +52,14 @@ mini_llama/
 ├── build/                         # Git 忽略：CMake/Ninja 构建产物
 │   ├── vscode-linux/               # VSCode WSL/Linux 构建与测试编译数据库
 │   ├── vscode-win32/               # VSCode Windows 构建与编译数据库
+│   ├── linux/                      # Linux/WSL Debug 构建与 CTest 验证，复用本地 GoogleTest
 │   ├── windows/                    # Windows 本机验证使用的独立构建目录
 │   │   ├── _deps/                  # CMake 下载的 GoogleTest 源码和构建产物
 │   │   ├── test/tensor_tests.exe   # Tensor 测试程序
 │   │   ├── test/ops_tests.exe      # 基础算子测试程序
 │   │   ├── test/tokenizer_tests.exe # tokenizer 测试程序
-│   │   └── test/kv_cache_tests.exe # KV cache 测试程序
+│   │   ├── test/kv_cache_tests.exe # KV cache 测试程序
+│   │   └── test/radix_tree_tests.exe # RadixTree 测试程序（构建后生成）
 │   ├── windows-no-tests/           # 验证 BUILD_TESTING=OFF 的纯库构建
 │   └── .npm-cache/                # 文档检索工具的本地缓存
 ├── compile_commands.json          # Git 忽略：编译命令数据库

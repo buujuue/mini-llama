@@ -1,0 +1,1584 @@
+{"header" : {
+  "cloc_url"           : "github.com/AlDanial/cloc",
+  "cloc_version"       : "2.06",
+  "elapsed_seconds"    : 3.16497492790222,
+  "n_files"            : 314,
+  "n_lines"            : 63310,
+  "files_per_second"   : 99.210896500884,
+  "lines_per_second"   : 20003.3180174235,
+  "report_file"        : "C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\cloc-by-file.json"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/fused_transform.py" :{
+  "blank": 92,
+  "comment": 63,
+  "code": 1175,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/scheduler.hpp" :{
+  "blank": 161,
+  "comment": 133,
+  "code": 1035,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/attn.py" :{
+  "blank": 92,
+  "comment": 71,
+  "code": 845,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/sampler.py" :{
+  "blank": 83,
+  "comment": 158,
+  "code": 839,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/fused_transform.py" :{
+  "blank": 36,
+  "comment": 38,
+  "code": 825,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/yoco/yoco_equiv.py" :{
+  "blank": 149,
+  "comment": 138,
+  "code": 770,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/engine/llm_engine.py" :{
+  "blank": 157,
+  "comment": 141,
+  "code": 731,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/_C/engine.pyi" :{
+  "blank": 13,
+  "comment": 49,
+  "code": 673,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/fused_sample.py" :{
+  "blank": 79,
+  "comment": 86,
+  "code": 667,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/cache_engine.py" :{
+  "blank": 158,
+  "comment": 219,
+  "code": 601,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/sampler.py" :{
+  "blank": 31,
+  "comment": 32,
+  "code": 600,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/fused_sample.py" :{
+  "blank": 30,
+  "comment": 52,
+  "code": 591,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/sampler.py" :{
+  "blank": 72,
+  "comment": 62,
+  "code": 549,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/fused_transform.py" :{
+  "blank": 49,
+  "comment": 27,
+  "code": 543,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/compress.py" :{
+  "blank": 76,
+  "comment": 58,
+  "code": 529,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/mlp.py" :{
+  "blank": 67,
+  "comment": 26,
+  "code": 523,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/model_runner.py" :{
+  "blank": 75,
+  "comment": 47,
+  "code": 522,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/worker/test_state_cache_ops.py" :{
+  "blank": 124,
+  "comment": 92,
+  "code": 520,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/input_metadata/prepare_tensor_input_v4.cpp" :{
+  "blank": 67,
+  "comment": 86,
+  "code": 502,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/index_attn.py" :{
+  "blank": 43,
+  "comment": 44,
+  "code": 488,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/benchmark.py" :{
+  "blank": 71,
+  "comment": 36,
+  "code": 481,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/fused_sample.py" :{
+  "blank": 34,
+  "comment": 17,
+  "code": 473,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/norm.py" :{
+  "blank": 43,
+  "comment": 78,
+  "code": 466,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/image_embed_ops.py" :{
+  "blank": 87,
+  "comment": 106,
+  "code": 437,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/prepare_v4_decode_metadata.py" :{
+  "blank": 54,
+  "comment": 65,
+  "code": 426,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/get_kv_index.py" :{
+  "blank": 54,
+  "comment": 40,
+  "code": 424,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/deepseek.py" :{
+  "blank": 72,
+  "comment": 29,
+  "code": 424,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/norm.py" :{
+  "blank": 22,
+  "comment": 2,
+  "code": 407,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/prepare_cp_mirror.py" :{
+  "blank": 54,
+  "comment": 63,
+  "code": 401,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cache_common.py" :{
+  "blank": 65,
+  "comment": 26,
+  "code": 370,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/sampler.py" :{
+  "blank": 32,
+  "comment": 12,
+  "code": 367,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/eplb/__init__.py" :{
+  "blank": 60,
+  "comment": 18,
+  "code": 356,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/sequence.hpp" :{
+  "blank": 55,
+  "comment": 13,
+  "code": 351,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/engine/stats_logger.py" :{
+  "blank": 71,
+  "comment": 58,
+  "code": 348,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/compress.py" :{
+  "blank": 49,
+  "comment": 24,
+  "code": 334,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/mtp/dflash.py" :{
+  "blank": 44,
+  "comment": 19,
+  "code": 329,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/candidate_blocks.py" :{
+  "blank": 17,
+  "comment": 5,
+  "code": 328,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/prepare_cp_mirror.py" :{
+  "blank": 36,
+  "comment": 36,
+  "code": 322,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/load_paged_kv_cache.py" :{
+  "blank": 36,
+  "comment": 28,
+  "code": 318,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/load_paged_kv_cache.py" :{
+  "blank": 27,
+  "comment": 6,
+  "code": 312,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/input_metadata/prepare_tensor_input_zos.py" :{
+  "blank": 42,
+  "comment": 30,
+  "code": 310,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/store_kv_cache.py" :{
+  "blank": 34,
+  "comment": 42,
+  "code": 304,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/hugging_face/weights.py" :{
+  "blank": 70,
+  "comment": 65,
+  "code": 301,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/image_embed_ops.py" :{
+  "blank": 41,
+  "comment": 60,
+  "code": 301,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/hc.py" :{
+  "blank": 46,
+  "comment": 52,
+  "code": 299,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/structure_output/matcher.py" :{
+  "blank": 52,
+  "comment": 0,
+  "code": 295,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/distributed/shm_broadcast.py" :{
+  "blank": 59,
+  "comment": 108,
+  "code": 294,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/prepare_cp_mirror.py" :{
+  "blank": 18,
+  "comment": 7,
+  "code": 288,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/zos.cpp" :{
+  "blank": 26,
+  "comment": 5,
+  "code": 276,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/hugging_face/config.py" :{
+  "blank": 39,
+  "comment": 16,
+  "code": 273,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/input_metadata/input_metadata.py" :{
+  "blank": 60,
+  "comment": 157,
+  "code": 273,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/base.py" :{
+  "blank": 54,
+  "comment": 34,
+  "code": 269,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/norm.py" :{
+  "blank": 28,
+  "comment": 31,
+  "code": 267,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/store_kv_cache.py" :{
+  "blank": 20,
+  "comment": 27,
+  "code": 263,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/ve/multimodal_processor.py" :{
+  "blank": 34,
+  "comment": 29,
+  "code": 263,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/flops_estimator.hpp" :{
+  "blank": 30,
+  "comment": 44,
+  "code": 256,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/outputs.hpp" :{
+  "blank": 35,
+  "comment": 17,
+  "code": 256,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/shared_memory.py" :{
+  "blank": 69,
+  "comment": 43,
+  "code": 251,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/prepare_sample.cpp" :{
+  "blank": 32,
+  "comment": 6,
+  "code": 246,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/candidate_blocks.py" :{
+  "blank": 41,
+  "comment": 42,
+  "code": 245,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/random_sampling.py" :{
+  "blank": 68,
+  "comment": 20,
+  "code": 244,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/mla_attn.py" :{
+  "blank": 34,
+  "comment": 23,
+  "code": 242,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/compress.py" :{
+  "blank": 44,
+  "comment": 10,
+  "code": 238,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/get_kv_index.py" :{
+  "blank": 29,
+  "comment": 4,
+  "code": 230,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/ve/processor/image_processor.py" :{
+  "blank": 57,
+  "comment": 31,
+  "code": 230,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/_prompts.py" :{
+  "blank": 39,
+  "comment": 21,
+  "code": 229,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/run_eval.py" :{
+  "blank": 57,
+  "comment": 24,
+  "code": 228,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/prepare_v4_decode_metadata.py" :{
+  "blank": 29,
+  "comment": 6,
+  "code": 222,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/timer.py" :{
+  "blank": 50,
+  "comment": 25,
+  "code": 220,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/input_metadata/prepare_tensor_input_base.cpp" :{
+  "blank": 28,
+  "comment": 5,
+  "code": 218,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/score.py" :{
+  "blank": 31,
+  "comment": 6,
+  "code": 216,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/gather_engram_tokens_zos.py" :{
+  "blank": 24,
+  "comment": 14,
+  "code": 210,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/deepseek_vl.py" :{
+  "blank": 28,
+  "comment": 29,
+  "code": 210,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/candidate_blocks.py" :{
+  "blank": 14,
+  "comment": 2,
+  "code": 209,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/cross_layer.py" :{
+  "blank": 46,
+  "comment": 130,
+  "code": 207,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/image_embed_ops.py" :{
+  "blank": 38,
+  "comment": 31,
+  "code": 206,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/common/judge.py" :{
+  "blank": 52,
+  "comment": 64,
+  "code": 205,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/engine/profile_server.py" :{
+  "blank": 56,
+  "comment": 61,
+  "code": 203,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/parallel_utils/userbuffer.py" :{
+  "blank": 29,
+  "comment": 8,
+  "code": 203,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/mtp_varlen.hpp" :{
+  "blank": 38,
+  "comment": 35,
+  "code": 202,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/rotary_embedding.py" :{
+  "blank": 36,
+  "comment": 46,
+  "code": 202,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/random_sampling.py" :{
+  "blank": 38,
+  "comment": 21,
+  "code": 199,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/random_sampling.py" :{
+  "blank": 33,
+  "comment": 27,
+  "code": 198,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/decoder_layer.py" :{
+  "blank": 30,
+  "comment": 12,
+  "code": 197,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/block_manager.hpp" :{
+  "blank": 41,
+  "comment": 6,
+  "code": 196,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/worker.py" :{
+  "blank": 41,
+  "comment": 46,
+  "code": 196,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/utils.py" :{
+  "blank": 65,
+  "comment": 24,
+  "code": 193,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/store_mtp_info.py" :{
+  "blank": 18,
+  "comment": 21,
+  "code": 187,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/test_sampler.py" :{
+  "blank": 53,
+  "comment": 23,
+  "code": 183,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/sequence.py" :{
+  "blank": 60,
+  "comment": 42,
+  "code": 179,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/store_kv_cache.py" :{
+  "blank": 16,
+  "comment": 5,
+  "code": 174,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/state_cache.py" :{
+  "blank": 31,
+  "comment": 15,
+  "code": 174,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/vision_encoder/vit.py" :{
+  "blank": 38,
+  "comment": 24,
+  "code": 168,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/config.py" :{
+  "blank": 32,
+  "comment": 30,
+  "code": 166,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/test_cuda_sync_guards.py" :{
+  "blank": 38,
+  "comment": 9,
+  "code": 166,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/engram.py" :{
+  "blank": 36,
+  "comment": 20,
+  "code": 163,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/parallel_utils/parallel_state.py" :{
+  "blank": 49,
+  "comment": 18,
+  "code": 163,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/doc/inference_deployment_qa.md" :{
+  "blank": 150,
+  "comment": 0,
+  "code": 162,
+  "language": "Markdown"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/prepare_decode_metadata.py" :{
+  "blank": 20,
+  "comment": 15,
+  "code": 161,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/dflash.py" :{
+  "blank": 41,
+  "comment": 22,
+  "code": 161,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/README.md" :{
+  "blank": 62,
+  "comment": 0,
+  "code": 159,
+  "language": "Markdown"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/hle/bench.py" :{
+  "blank": 43,
+  "comment": 20,
+  "code": 159,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/pybind_sequence.cpp" :{
+  "blank": 15,
+  "comment": 0,
+  "code": 158,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/eplb/shuffle.py" :{
+  "blank": 34,
+  "comment": 31,
+  "code": 153,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/model_metadata_utils.py" :{
+  "blank": 26,
+  "comment": 10,
+  "code": 152,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/linear.py" :{
+  "blank": 27,
+  "comment": 10,
+  "code": 148,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deep_cluster/hardware/device.py" :{
+  "blank": 34,
+  "comment": 1,
+  "code": 147,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/load_paged_kv_cache.py" :{
+  "blank": 17,
+  "comment": 3,
+  "code": 145,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/environ.py" :{
+  "blank": 50,
+  "comment": 27,
+  "code": 144,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/gather_input_ids_zos.py" :{
+  "blank": 33,
+  "comment": 16,
+  "code": 144,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/test_kl.py" :{
+  "blank": 46,
+  "comment": 30,
+  "code": 144,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/decode_perf_cache.py" :{
+  "blank": 21,
+  "comment": 2,
+  "code": 143,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/engine/test_flops_estimator.py" :{
+  "blank": 24,
+  "comment": 13,
+  "code": 141,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/.clang-format" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 135,
+  "language": "YAML"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/sampler_utils.py" :{
+  "blank": 24,
+  "comment": 37,
+  "code": 135,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/platform.py" :{
+  "blank": 51,
+  "comment": 41,
+  "code": 135,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/sweep/plot_pareto.py" :{
+  "blank": 28,
+  "comment": 16,
+  "code": 135,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/compress.py" :{
+  "blank": 20,
+  "comment": 15,
+  "code": 132,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/ve/test_chunk_mm_metadata.py" :{
+  "blank": 33,
+  "comment": 24,
+  "code": 132,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/_trace.py" :{
+  "blank": 34,
+  "comment": 23,
+  "code": 129,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/hugging_face/names.py" :{
+  "blank": 26,
+  "comment": 30,
+  "code": 128,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/kv_quant.py" :{
+  "blank": 21,
+  "comment": 47,
+  "code": 128,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/test_offline_inference.py" :{
+  "blank": 25,
+  "comment": 11,
+  "code": 128,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/dflash.py" :{
+  "blank": 23,
+  "comment": 0,
+  "code": 127,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/cuda_graph_runner.py" :{
+  "blank": 31,
+  "comment": 10,
+  "code": 127,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/pybind_output.cpp" :{
+  "blank": 10,
+  "comment": 2,
+  "code": 126,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/pybind_scheduler.cpp" :{
+  "blank": 12,
+  "comment": 1,
+  "code": 125,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/entrypoints/llm.py" :{
+  "blank": 25,
+  "comment": 50,
+  "code": 123,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/ve/prepare_tensor_input_vl.py" :{
+  "blank": 26,
+  "comment": 15,
+  "code": 122,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deep_cluster/hardware/ascend.py" :{
+  "blank": 33,
+  "comment": 1,
+  "code": 121,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/engine/test_sequence.py" :{
+  "blank": 32,
+  "comment": 7,
+  "code": 120,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/structure_output.py" :{
+  "blank": 20,
+  "comment": 11,
+  "code": 119,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/aime/bench.py" :{
+  "blank": 38,
+  "comment": 24,
+  "code": 119,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/mhc_ops.py" :{
+  "blank": 26,
+  "comment": 4,
+  "code": 118,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/gpqa/bench.py" :{
+  "blank": 34,
+  "comment": 15,
+  "code": 118,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/get_kv_index.py" :{
+  "blank": 14,
+  "comment": 10,
+  "code": 114,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/logger.py" :{
+  "blank": 37,
+  "comment": 24,
+  "code": 113,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/gather_engram_tokens_zos.py" :{
+  "blank": 14,
+  "comment": 19,
+  "code": 112,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/vision_encoder/vl_aligner.py" :{
+  "blank": 14,
+  "comment": 15,
+  "code": 112,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/structure_output/so_matcher_builder.py" :{
+  "blank": 21,
+  "comment": 5,
+  "code": 112,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/model_loader.py" :{
+  "blank": 31,
+  "comment": 13,
+  "code": 109,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/engine/test_mm_overwrite_prompt.py" :{
+  "blank": 37,
+  "comment": 8,
+  "code": 108,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/dflash_copy.py" :{
+  "blank": 8,
+  "comment": 14,
+  "code": 107,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/distributed/test_expert_shuffle.py" :{
+  "blank": 29,
+  "comment": 8,
+  "code": 107,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/attention_backend.py" :{
+  "blank": 11,
+  "comment": 29,
+  "code": 106,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/distributed/test_shm_broadcast.py" :{
+  "blank": 26,
+  "comment": 13,
+  "code": 106,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/input_metadata/yoco.py" :{
+  "blank": 23,
+  "comment": 55,
+  "code": 104,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/dflash_copy.py" :{
+  "blank": 29,
+  "comment": 18,
+  "code": 104,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/gather.py" :{
+  "blank": 17,
+  "comment": 15,
+  "code": 104,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/utils.py" :{
+  "blank": 28,
+  "comment": 11,
+  "code": 104,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/_ve_helper.py" :{
+  "blank": 27,
+  "comment": 17,
+  "code": 103,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/sweep/ve_sweep.py" :{
+  "blank": 24,
+  "comment": 10,
+  "code": 102,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/schedule_mtp_varlen.py" :{
+  "blank": 20,
+  "comment": 0,
+  "code": 101,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/dflash.py" :{
+  "blank": 18,
+  "comment": 0,
+  "code": 101,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deep_cluster/hardware/nvidia.py" :{
+  "blank": 24,
+  "comment": 5,
+  "code": 100,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/engine/arg_utils.py" :{
+  "blank": 10,
+  "comment": 5,
+  "code": 99,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/builder.py" :{
+  "blank": 18,
+  "comment": 13,
+  "code": 99,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/npu_ops/patch_imports.py" :{
+  "blank": 27,
+  "comment": 18,
+  "code": 97,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/state_cache.py" :{
+  "blank": 20,
+  "comment": 21,
+  "code": 95,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/schedule_mtp_varlen.py" :{
+  "blank": 32,
+  "comment": 39,
+  "code": 95,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/cuda_utils.cpp" :{
+  "blank": 15,
+  "comment": 0,
+  "code": 94,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/sampling_inputs.py" :{
+  "blank": 24,
+  "comment": 14,
+  "code": 94,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/offline_inference.py" :{
+  "blank": 18,
+  "comment": 1,
+  "code": 94,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/asc_utils.cpp" :{
+  "blank": 16,
+  "comment": 6,
+  "code": 93,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/containers.py" :{
+  "blank": 21,
+  "comment": 21,
+  "code": 93,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/structure_output.py" :{
+  "blank": 9,
+  "comment": 1,
+  "code": 92,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/hugging_face/loading.py" :{
+  "blank": 16,
+  "comment": 15,
+  "code": 90,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/swa_index.py" :{
+  "blank": 14,
+  "comment": 13,
+  "code": 90,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/offline_decode_ppl.json" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 90,
+  "language": "JSON"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/test_ve_batch_invariant.py" :{
+  "blank": 30,
+  "comment": 38,
+  "code": 90,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/engram_metadata.py" :{
+  "blank": 17,
+  "comment": 10,
+  "code": 89,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/mhc_modeling.py" :{
+  "blank": 27,
+  "comment": 26,
+  "code": 89,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/compute_seqlens_k_zos.py" :{
+  "blank": 20,
+  "comment": 14,
+  "code": 87,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/attrdict.py" :{
+  "blank": 24,
+  "comment": 6,
+  "code": 86,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/sum_smaller_probs.py" :{
+  "blank": 13,
+  "comment": 0,
+  "code": 86,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/kv_index_cat.py" :{
+  "blank": 21,
+  "comment": 10,
+  "code": 86,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/hugging_face/tokenizer.py" :{
+  "blank": 19,
+  "comment": 18,
+  "code": 84,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/eplb/policy.py" :{
+  "blank": 17,
+  "comment": 39,
+  "code": 84,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/test_eplb_policy.py" :{
+  "blank": 19,
+  "comment": 14,
+  "code": 84,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/state_cache.py" :{
+  "blank": 13,
+  "comment": 0,
+  "code": 83,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/flash_mla_utils.py" :{
+  "blank": 16,
+  "comment": 8,
+  "code": 83,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/hc_blocks.py" :{
+  "blank": 19,
+  "comment": 7,
+  "code": 83,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/heads.py" :{
+  "blank": 20,
+  "comment": 7,
+  "code": 81,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/gather.py" :{
+  "blank": 11,
+  "comment": 16,
+  "code": 80,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deep_cluster/topology/bind.py" :{
+  "blank": 18,
+  "comment": 2,
+  "code": 79,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/parallel_utils/nccl_memory.py" :{
+  "blank": 16,
+  "comment": 5,
+  "code": 79,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/dflash_cuda_graph_runner.py" :{
+  "blank": 22,
+  "comment": 1,
+  "code": 77,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/README.md" :{
+  "blank": 47,
+  "comment": 0,
+  "code": 77,
+  "language": "Markdown"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/gather_input_ids_zos.py" :{
+  "blank": 11,
+  "comment": 0,
+  "code": 76,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/common/passk.py" :{
+  "blank": 15,
+  "comment": 12,
+  "code": 76,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/_config.py" :{
+  "blank": 23,
+  "comment": 26,
+  "code": 76,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/README.md" :{
+  "blank": 33,
+  "comment": 0,
+  "code": 74,
+  "language": "Markdown"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/sampling_params.py" :{
+  "blank": 13,
+  "comment": 32,
+  "code": 74,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/moe.py" :{
+  "blank": 24,
+  "comment": 15,
+  "code": 73,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/dflash_copy.py" :{
+  "blank": 6,
+  "comment": 4,
+  "code": 72,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/setup.py" :{
+  "blank": 16,
+  "comment": 4,
+  "code": 71,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/test_batch_invariant.py" :{
+  "blank": 30,
+  "comment": 15,
+  "code": 71,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/graph_timer/graph_timer_cuda.cpp" :{
+  "blank": 20,
+  "comment": 1,
+  "code": 70,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/yoco.py" :{
+  "blank": 22,
+  "comment": 31,
+  "code": 70,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/gather_engram_tokens_zos.py" :{
+  "blank": 6,
+  "comment": 1,
+  "code": 69,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/refresh_offline_decode_ppl.py" :{
+  "blank": 10,
+  "comment": 5,
+  "code": 69,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/kv_index_cat.py" :{
+  "blank": 12,
+  "comment": 3,
+  "code": 67,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/worker/test_userbuffer.py" :{
+  "blank": 24,
+  "comment": 1,
+  "code": 67,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/schedule_mtp_varlen.py" :{
+  "blank": 13,
+  "comment": 4,
+  "code": 66,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/sweep/run_sweep.sh" :{
+  "blank": 9,
+  "comment": 15,
+  "code": 66,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/rstd_1ulp.py" :{
+  "blank": 23,
+  "comment": 11,
+  "code": 64,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/parallel_utils/communication_op.py" :{
+  "blank": 14,
+  "comment": 7,
+  "code": 61,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/utils.py" :{
+  "blank": 23,
+  "comment": 17,
+  "code": 61,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/store_mtp_info.py" :{
+  "blank": 8,
+  "comment": 0,
+  "code": 59,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/gather.py" :{
+  "blank": 8,
+  "comment": 2,
+  "code": 59,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/sum_smaller_probs.py" :{
+  "blank": 14,
+  "comment": 10,
+  "code": 59,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/_structured_output.py" :{
+  "blank": 5,
+  "comment": 0,
+  "code": 59,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/pyproject.toml" :{
+  "blank": 4,
+  "comment": 19,
+  "code": 59,
+  "language": "TOML"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/scripts/format_csrc.sh" :{
+  "blank": 9,
+  "comment": 5,
+  "code": 59,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/structure_output/compiler.py" :{
+  "blank": 15,
+  "comment": 1,
+  "code": 58,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/swa_index.py" :{
+  "blank": 5,
+  "comment": 0,
+  "code": 57,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/prepare_sample.hpp" :{
+  "blank": 12,
+  "comment": 0,
+  "code": 54,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/store_mtp_info.py" :{
+  "blank": 5,
+  "comment": 0,
+  "code": 54,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/input_metadata/block_load_plan.cpp" :{
+  "blank": 7,
+  "comment": 0,
+  "code": 53,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/input_metadata/prepare_tensor_input.hpp" :{
+  "blank": 16,
+  "comment": 4,
+  "code": 53,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/utils/log.hpp" :{
+  "blank": 9,
+  "comment": 0,
+  "code": 53,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/structure_output.py" :{
+  "blank": 6,
+  "comment": 0,
+  "code": 53,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/engram_parameters.py" :{
+  "blank": 9,
+  "comment": 3,
+  "code": 52,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/graph_timer/graph_timer.hpp" :{
+  "blank": 27,
+  "comment": 9,
+  "code": 51,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/mtp_info_pool.py" :{
+  "blank": 12,
+  "comment": 15,
+  "code": 51,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/conftest.py" :{
+  "blank": 18,
+  "comment": 44,
+  "code": 51,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/sum_smaller_probs.py" :{
+  "blank": 7,
+  "comment": 0,
+  "code": 50,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/layernorm.py" :{
+  "blank": 8,
+  "comment": 6,
+  "code": 49,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/kv_index_cat.py" :{
+  "blank": 7,
+  "comment": 16,
+  "code": 48,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/input_metadata/dflash.py" :{
+  "blank": 16,
+  "comment": 21,
+  "code": 47,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/ve/schema.py" :{
+  "blank": 16,
+  "comment": 14,
+  "code": 47,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/runtime_config.py" :{
+  "blank": 15,
+  "comment": 7,
+  "code": 47,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/scripts/build_vendor.sh" :{
+  "blank": 7,
+  "comment": 0,
+  "code": 47,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/hugging_face/processor.py" :{
+  "blank": 10,
+  "comment": 10,
+  "code": 46,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/compute_seqlens_k_zos.py" :{
+  "blank": 9,
+  "comment": 4,
+  "code": 46,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/asc/flash_mla_utils.py" :{
+  "blank": 7,
+  "comment": 0,
+  "code": 46,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/hugging_face/parameters.py" :{
+  "blank": 13,
+  "comment": 14,
+  "code": 43,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/gather_input_ids_zos.py" :{
+  "blank": 6,
+  "comment": 0,
+  "code": 42,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/scripts/build.sh" :{
+  "blank": 6,
+  "comment": 1,
+  "code": 42,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/utils/object_pool.hpp" :{
+  "blank": 9,
+  "comment": 0,
+  "code": 39,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/rope.py" :{
+  "blank": 11,
+  "comment": 4,
+  "code": 38,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/parallel_utils/cp.py" :{
+  "blank": 10,
+  "comment": 6,
+  "code": 38,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/hugging_face/__init__.py" :{
+  "blank": 9,
+  "comment": 4,
+  "code": 36,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deep_cluster/hardware/cpu.py" :{
+  "blank": 6,
+  "comment": 6,
+  "code": 35,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/flash_mla_utils.py" :{
+  "blank": 5,
+  "comment": 0,
+  "code": 35,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/common/paths.py" :{
+  "blank": 11,
+  "comment": 5,
+  "code": 35,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/cuda_utils.hpp" :{
+  "blank": 12,
+  "comment": 3,
+  "code": 34,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/outlier_detection.py" :{
+  "blank": 5,
+  "comment": 1,
+  "code": 34,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/__init__.py" :{
+  "blank": 18,
+  "comment": 13,
+  "code": 33,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/compute_seqlens_k_zos.py" :{
+  "blank": 5,
+  "comment": 0,
+  "code": 33,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/ve/processor/common.py" :{
+  "blank": 16,
+  "comment": 3,
+  "code": 33,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/CONTRIBUTING.md" :{
+  "blank": 18,
+  "comment": 0,
+  "code": 32,
+  "language": "Markdown"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/utils/lockable.hpp" :{
+  "blank": 6,
+  "comment": 0,
+  "code": 32,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deep_cluster/hardware/__init__.py" :{
+  "blank": 2,
+  "comment": 1,
+  "code": 32,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/_launch.py" :{
+  "blank": 11,
+  "comment": 8,
+  "code": 31,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/process_output.hpp" :{
+  "blank": 4,
+  "comment": 5,
+  "code": 30,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/common/io.py" :{
+  "blank": 7,
+  "comment": 1,
+  "code": 30,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/graph_timer/graph_timer_asc.cpp" :{
+  "blank": 16,
+  "comment": 0,
+  "code": 29,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/swa_index.py" :{
+  "blank": 5,
+  "comment": 0,
+  "code": 29,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/yoco/README.md" :{
+  "blank": 12,
+  "comment": 0,
+  "code": 29,
+  "language": "Markdown"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/input_metadata/block_load_plan.hpp" :{
+  "blank": 7,
+  "comment": 0,
+  "code": 27,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/norm.py" :{
+  "blank": 7,
+  "comment": 5,
+  "code": 27,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/graph_timer/pybind.cpp" :{
+  "blank": 5,
+  "comment": 0,
+  "code": 26,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/Makefile" :{
+  "blank": 7,
+  "comment": 0,
+  "code": 25,
+  "language": "make"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/structure_output/mask.py" :{
+  "blank": 9,
+  "comment": 2,
+  "code": 25,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/worker/zos_status.py" :{
+  "blank": 7,
+  "comment": 9,
+  "code": 24,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/npu_ops/vit_attn.py" :{
+  "blank": 4,
+  "comment": 4,
+  "code": 23,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/_runner.py" :{
+  "blank": 7,
+  "comment": 2,
+  "code": 23,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/__init__.py" :{
+  "blank": 12,
+  "comment": 3,
+  "code": 22,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/zos.hpp" :{
+  "blank": 9,
+  "comment": 0,
+  "code": 21,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/ve/processor/mm_processor.py" :{
+  "blank": 6,
+  "comment": 3,
+  "code": 21,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/requirements.txt" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 21,
+  "language": "Text"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/common.py" :{
+  "blank": 12,
+  "comment": 21,
+  "code": 20,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/vocab_parallel_embedding.py" :{
+  "blank": 8,
+  "comment": 2,
+  "code": 20,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/common/loader.py" :{
+  "blank": 5,
+  "comment": 0,
+  "code": 20,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/_C/graph_timer.pyi" :{
+  "blank": 0,
+  "comment": 42,
+  "code": 19,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/linear.py" :{
+  "blank": 9,
+  "comment": 6,
+  "code": 19,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/testing.py" :{
+  "blank": 4,
+  "comment": 0,
+  "code": 19,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/utils.hpp" :{
+  "blank": 6,
+  "comment": 16,
+  "code": 18,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/npu_ops/deep_select.py" :{
+  "blank": 5,
+  "comment": 3,
+  "code": 18,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/aime/run.sh" :{
+  "blank": 7,
+  "comment": 5,
+  "code": 18,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/common/encoder.py" :{
+  "blank": 4,
+  "comment": 1,
+  "code": 18,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/gpqa/run.sh" :{
+  "blank": 7,
+  "comment": 5,
+  "code": 18,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/multimodal_tokens.py" :{
+  "blank": 11,
+  "comment": 13,
+  "code": 17,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/hle/run.sh" :{
+  "blank": 6,
+  "comment": 3,
+  "code": 17,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/build.sh" :{
+  "blank": 7,
+  "comment": 4,
+  "code": 16,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/ops.py" :{
+  "blank": 8,
+  "comment": 8,
+  "code": 16,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/hc_lazy.py" :{
+  "blank": 10,
+  "comment": 9,
+  "code": 16,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/vision_encoder/mlp_projector.py" :{
+  "blank": 6,
+  "comment": 2,
+  "code": 15,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/requirements-dev.txt" :{
+  "blank": 4,
+  "comment": 0,
+  "code": 15,
+  "language": "Text"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/model_output.py" :{
+  "blank": 6,
+  "comment": 1,
+  "code": 14,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/scripts/gen_stub.sh" :{
+  "blank": 3,
+  "comment": 1,
+  "code": 14,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/conftest.py" :{
+  "blank": 6,
+  "comment": 7,
+  "code": 13,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/pybind.cpp" :{
+  "blank": 2,
+  "comment": 3,
+  "code": 12,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/input_metadata/__init__.py" :{
+  "blank": 1,
+  "comment": 0,
+  "code": 12,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layer_utils.py" :{
+  "blank": 3,
+  "comment": 1,
+  "code": 12,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/npu_ops/__init__.py" :{
+  "blank": 1,
+  "comment": 0,
+  "code": 11,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/examples/yoco/run_yoco_equiv_l2.sh" :{
+  "blank": 3,
+  "comment": 0,
+  "code": 10,
+  "language": "Bourne Shell"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/tests/models/test_offline_inference_long.py" :{
+  "blank": 6,
+  "comment": 1,
+  "code": 9,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/pybind.cpp" :{
+  "blank": 3,
+  "comment": 0,
+  "code": 8,
+  "language": "C++"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/csrc/engine/pybind.hpp" :{
+  "blank": 5,
+  "comment": 1,
+  "code": 8,
+  "language": "C/C++ Header"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/engine/engine_type.py" :{
+  "blank": 5,
+  "comment": 4,
+  "code": 8,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_config_loader.py" :{
+  "blank": 7,
+  "comment": 8,
+  "code": 8,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/outlier_detection.py" :{
+  "blank": 7,
+  "comment": 11,
+  "code": 8,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deep_cluster/topology/__init__.py" :{
+  "blank": 2,
+  "comment": 1,
+  "code": 6,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/_C/cuda_utils.pyi" :{
+  "blank": 0,
+  "comment": 12,
+  "code": 6,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/load_class.py" :{
+  "blank": 2,
+  "comment": 0,
+  "code": 6,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/ve/processor/text_processor.py" :{
+  "blank": 5,
+  "comment": 2,
+  "code": 6,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/_C/__init__.pyi" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 5,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/layers/tilelang_ops/cuda/quant.py" :{
+  "blank": 2,
+  "comment": 2,
+  "code": 5,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/requirements-ascend.txt" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 4,
+  "language": "Text"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/requirements-nvidia.txt" :{
+  "blank": 1,
+  "comment": 0,
+  "code": 4,
+  "language": "Text"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/eval/common/__init__.py" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 1,
+  "language": "Python"},
+"C:\Users\不觉\AppData\Local\Temp\codex-deepinfer-stats-6d77c2d9f060492d98c3bfe71c1aa7f6\DeepInfer/deepinfer/model_executor/models/v4_modules/__init__.py" :{
+  "blank": 7,
+  "comment": 35,
+  "code": 0,
+  "language": "Python"},
+"SUM": {
+  "blank": 8346,
+  "comment": 6044,
+  "code": 48920,
+  "nFiles": 314} }

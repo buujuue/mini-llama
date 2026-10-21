@@ -37,12 +37,11 @@ struct LayerWeights {
     Tensor w_down;         // [dim, hidden_dim]
 };
 
-struct MiniLlamaModel {
+struct Model {
     ModelConfig config;
     bool loaded = false;
     std::string load_error;
 
-    // 形状注释表示后续需要填入的权重，当前 Tensor 和 layers 均保持为空。
     Tensor token_embedding;           // [vocab_size, dim]
     std::vector<LayerWeights> layers; // 数量为 layers_num
     Tensor final_norm;                // [dim]

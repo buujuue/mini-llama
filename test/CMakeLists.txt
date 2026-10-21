@@ -27,8 +27,12 @@ target_link_libraries(tokenizer_tests PRIVATE mini_llama GTest::gtest_main)
 add_executable(kv_cache_tests test_kv_cache.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
 target_link_libraries(kv_cache_tests PRIVATE mini_llama GTest::gtest_main)
 
+add_executable(radix_tree_tests test_radix_tree.cpp)
+target_link_libraries(radix_tree_tests PRIVATE mini_llama GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(tensor_tests PROPERTIES TIMEOUT 10)
 gtest_discover_tests(ops_tests PROPERTIES TIMEOUT 10 LABELS ops)
 gtest_discover_tests(tokenizer_tests PROPERTIES TIMEOUT 10 LABELS tokenizer)
 gtest_discover_tests(kv_cache_tests PROPERTIES TIMEOUT 10 LABELS kv_cache)
+gtest_discover_tests(radix_tree_tests PROPERTIES TIMEOUT 10 LABELS radix_tree)
