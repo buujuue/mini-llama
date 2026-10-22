@@ -38,7 +38,7 @@ private:
                                          std::size_t a_offset,
                                          const std::vector<int>& b);
     void InsertInto(Node* parent, std::vector<int> suffix);
-
+        
     Node root_;
     std::size_t terminal_count_ = 0;
 };
