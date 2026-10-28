@@ -3,10 +3,20 @@
 
 #include "request_context.h"
 #include <chrono>
+#include <cstdio>
 #include <ctime>
-#include <iomanip>
 #include <ratio>
-#include <sstream>
+
+namespace {
+
+std::string FormatMilliseconds(double milliseconds) {
+    const int length = std::snprintf(nullptr, 0, "%.3f", milliseconds);
+    std::string buffer(static_cast<std::size_t>(length), '\0');
+    std::snprintf(buffer.data(), buffer.size() + 1, "%.3f", milliseconds);
+    return buffer;
+}
+
+} // namespace
 
 std::size_t RequestContext::request_counter_ = 0;
 
@@ -83,43 +93,39 @@ RequestContext::RequestContext(RequestMode mode, BackendKind backend, const std:
 }
 
 std::string RequestContext::FormatRequestTraceSummary() const {
-    std::ostringstream out;
-    out << std::fixed << std::setprecision(3);
-    out << "trace summary: trace_id=" << trace_id_
-        << " mode=" << ToString(mode_)
-        << " status=" << (error_.empty() ? "ok" : "error")
-        << " backend=" << ToString(backend_)
-        << " model=" << model_path_
-        << " prompt_tokens=" << prompt_tokens_
-        << " prefill_tokens=" << prefill_tokens_
-        << " decode_tokens=" << decode_tokens_
-        << " generated_tokens=" << generated_tokens_
-        << " model_load_ms=" << model_load_ms_
-        << " tokenize_ms=" << tokenize_ms_
-        << " prefill_ms=" << prefill_ms_
-        << " decode_ms=" << decode_ms_
-        << " sample_ms=" << sample_ms_
-        << " total_ms=" << total_ms_;
+    std::string out = "trace summary: trace_id=" + trace_id_;
+    out += std::string("\nmode=") + ToString(mode_);
+    out += std::string("\nstatus=") + (error_.empty() ? "ok" : "error");
+    out += std::string("\nbackend=") + ToString(backend_);
+    out += "\nmodel=" + model_path_;
+    out += "\nprompt_tokens=" + std::to_string(prompt_tokens_);
+    out += "\nprefill_tokens=" + std::to_string(prefill_tokens_);
+    out += "\ndecode_tokens=" + std::to_string(decode_tokens_);
+    out += "\ngenerated_tokens=" + std::to_string(generated_tokens_);
+    out += "\nmodel_load_ms=" + FormatMilliseconds(model_load_ms_);
+    out += "\ntokenize_ms=" + FormatMilliseconds(tokenize_ms_);
+    out += "\nprefill_ms=" + FormatMilliseconds(prefill_ms_);
+    out += "\ndecode_ms=" + FormatMilliseconds(decode_ms_);
+    out += "\nsample_ms=" + FormatMilliseconds(sample_ms_);
+    out += "\ntotal_ms=" + FormatMilliseconds(total_ms_);
     if (!error_.empty()) {
-        out << " error=\"" << error_ << "\"";
+        out += "\nerror=\"" + error_ + "\"";
     }
-    return out.str();
+    return out;
 }
 
 std::vector<std::string> RequestContext::FormatRequestTraceEvents() const {
     std::vector<std::string> lines;
     lines.reserve(events_.size());
     for (const TraceEvent& event : events_) {
-        std::ostringstream out;
-        out << std::fixed << std::setprecision(3);
-        out << "trace event: trace_id=" << trace_id_
-            << " stage=" << ToString(event.type)
-            << " tokens=" << event.tokens
-            << " elapsed_ms=" << event.elapsed_ms;
+        std::string out = "trace event: trace_id=" + trace_id_;
+        out += std::string("\nstage=") + ToString(event.type);
+        out += "\ntokens=" + std::to_string(event.tokens);
+        out += "\nelapsed_ms=" + FormatMilliseconds(event.elapsed_ms);
         if (!event.datail.empty()) {
-            out << " detail=\"" << event.datail << "\"";
+            out += "\ndetail=\"" + event.datail + "\"";
         }
-        lines.push_back(out.str());
+        lines.push_back(out);
     }
     return lines;
 }

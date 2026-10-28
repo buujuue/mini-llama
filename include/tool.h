@@ -6,3 +6,8 @@ enum class RopeType {
     Normal,
     NeoX,
 };
+
+enum class BackendKind {
+    Cpu,
+    Cuda,
+};

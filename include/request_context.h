@@ -5,15 +5,11 @@
 #include <string>
 #include <vector>
 
+#include "tool.h"
 
 enum class RequestMode {
     Generate,
     Run,
-};
-
-enum class BackendKind {
-    Cpu,
-    Cuda,
 };
 
 enum class TraceEventType{

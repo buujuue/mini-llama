@@ -4,18 +4,19 @@
 #include <vector>
 #include "model.h"
 #include "kv_cache.h"
+#include "tool.h"
 
-class Context{
-public:
-    explicit Context(const Model& model) {
-        model_ptr_ = &model;
-        const auto& c = model_ptr_->config;
-        kv_cache_ = KvCache(c.layers_num, c.max_seq_len, c.kv_heads_num, c.head_dim);
+struct Context{
+    explicit Context(const Model& model, BackendKind backend_kind = BackendKind::Cpu)
+        : model_ptr(&model), backend_kind(backend_kind) {
+        const auto& c = model_ptr->config;
+        kv_cache = KvCache(c.layers_num, c.max_seq_len, c.kv_heads_num, c.head_dim);
     }
-    const Model* model_ptr_ = nullptr;
-    KvCache kv_cache_;
-    size_t pos_ = 0;
-    size_t prefill_len_ = 0;
-    size_t decode_len_ = 0;
-    std::vector<int> token_history_;
+    const Model* model_ptr = nullptr;
+    BackendKind backend_kind = BackendKind::Cpu;
+    KvCache kv_cache;
+    size_t pos = 0;
+    size_t prefill_len = 0;
+    size_t decode_len = 0;
+    std::vector<int> token_history;
 };

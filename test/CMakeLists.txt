@@ -58,6 +58,9 @@ target_link_libraries(request_context_tests PRIVATE mini_llama GTest::gtest_main
 add_executable(context_tests test_context.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
 target_link_libraries(context_tests PRIVATE mini_llama GTest::gtest_main)
 
+add_executable(forward_tests test_forward.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
+target_link_libraries(forward_tests PRIVATE mini_llama GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(tensor_tests PROPERTIES TIMEOUT 10)
 gtest_discover_tests(ops_tests PROPERTIES TIMEOUT 10 LABELS ops)
@@ -67,3 +70,4 @@ gtest_discover_tests(radix_tree_tests PROPERTIES TIMEOUT 10 LABELS radix_tree)
 gtest_discover_tests(batch_tests PROPERTIES TIMEOUT 10 LABELS batch)
 gtest_discover_tests(request_context_tests PROPERTIES TIMEOUT 10 LABELS request_context)
 gtest_discover_tests(context_tests PROPERTIES TIMEOUT 10 LABELS context)
+gtest_discover_tests(forward_tests PROPERTIES TIMEOUT 10 LABELS forward)

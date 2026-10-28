@@ -33,13 +33,16 @@ static Tensor MatmulNaive(const Tensor& a, const Tensor& b) {
     size_t inner_dim = a.GetShape()[1];
     size_t n = b.GetShape()[1];
     Tensor c({m, n}, 0.0f);
+    const float* a_data = a.Data();
+    const float* b_data = b.Data();
+    float* c_data = c.Data();
     for (size_t i = 0; i < m; ++i) {
         for (size_t j = 0; j < n; ++j) {
             float sum = 0.0f;
             for (size_t k = 0; k < inner_dim; ++k) {
-                sum += a.At2D(i, k) * b.At2D(k, j);
+                sum += a_data[i * inner_dim + k] * b_data[k * n + j];
             }
-            c.At2D(i, j) = sum;
+            c_data[i * n + j] = sum;
         }
     }
     return c;
@@ -75,12 +78,15 @@ static Tensor LinearNaive(const Tensor& x, const Tensor& weight) {
     const size_t in_features = weight.GetShape()[1];
     const size_t out_features = weight.GetShape()[0];
     Tensor result(x.GetNumDims() == 1 ? std::vector<size_t>{out_features} : std::vector<size_t>{1, out_features}, 0.0f);
+    const float* x_data = x.Data();
+    const float* weight_data = weight.Data();
+    float* result_data = result.Data();
     for (size_t j = 0; j < out_features; ++j) {
         float sum = 0.0f;
         for (size_t k = 0; k < in_features; ++k) {
-            sum += x.Data()[k] * weight.Data()[j * in_features + k];
+            sum += x_data[k] * weight_data[j * in_features + k];
         }
-        result.Data()[j] = sum;
+        result_data[j] = sum;
     }
     return result;
 }
@@ -141,17 +147,20 @@ Tensor RmsNorm(const Tensor& x, const Tensor& weight, float eps) {
             "，x shape: " + ShapeToString(x) + "，weight shape: " + ShapeToString(weight) + "。");
     }
 
+    const float* x_data = x.Data();
+    const float* weight_data = weight.Data();
     float tmp = 0.0f;
 
     for (size_t i = 0; i < dim; ++i) {
-        tmp += x.At1D(i) * x.At1D(i);
+        tmp += x_data[i] * x_data[i];
     }
 
     float scale = 1.0f / std::sqrt(tmp / static_cast<float>(dim) + eps);
 
     Tensor y({dim}, 0.0f);
+    float* y_data = y.Data();
     for (size_t i = 0; i < dim; i++) {
-        y.At1D(i) = x.At1D(i) * scale * weight.At1D(i);
+        y_data[i] = x_data[i] * scale * weight_data[i];
     }
     return y;
 }
@@ -167,23 +176,25 @@ Tensor Softmax(const Tensor& x) {
     }
 
     size_t n = x.GetShape()[0];
-    float max = x.At1D(0);
+    const float* x_data = x.Data();
+    float max = x_data[0];
 
     for (size_t i = 0; i < n; ++i) {
-        max = std::max(x.At1D(i), max);
+        max = std::max(x_data[i], max);
     }
 
     float sum = 0.0f;
 
     Tensor y({n}, 0.0f);
+    float* y_data = y.Data();
 
     for (size_t i = 0; i < n; ++i) {
-        y.At1D(i) = std::exp(x.At1D(i) - max);
-        sum += y.At1D(i);
+        y_data[i] = std::exp(x_data[i] - max);
+        sum += y_data[i];
     }
 
     for (size_t i = 0; i < n; ++i) {
-        y.At1D(i) /= sum;
+        y_data[i] /= sum;
     }
 
     return y;
@@ -195,10 +206,13 @@ Tensor SwiGlu(const Tensor& gate, const Tensor& up) {
                                  "，up shape: " + ShapeToString(up) + "。");
     }
     Tensor y(gate.GetShape(), 0.0f);
+    const float* gate_data = gate.Data();
+    const float* up_data = up.Data();
+    float* y_data = y.Data();
     for (size_t i = 0; i < gate.GetDataSize(); i++) {
-        float val = gate.Data()[i];
+        float val = gate_data[i];
         float sigmoid = 1.0f / (1.0f + std::exp(-val));
-        y.Data()[i] = sigmoid * val * up.Data()[i];
+        y_data[i] = sigmoid * val * up_data[i];
     }
     return y;
 }
@@ -206,18 +220,20 @@ Tensor SwiGlu(const Tensor& gate, const Tensor& up) {
 void NormalRope(Tensor& x, size_t pos, float theta) {
     size_t heads = x.GetShape()[0];
     size_t head_dim = x.GetShape()[1];
+    float* x_data = x.Data();
     for (size_t i = 0; i < heads; ++i) {
+        float* head_data = x_data + i * head_dim;
         for (size_t j = 0; j < head_dim; j += 2) {
             float freq = std::pow(theta, -static_cast<float>(j) / static_cast<float>(head_dim));
 
             float cos_val = std::cos(pos * freq);
             float sin_val = std::sin(pos * freq);
 
-            float x0 = x.At2D(i, j);
-            float x1 = x.At2D(i, j + 1);
+            float x0 = head_data[j];
+            float x1 = head_data[j + 1];
 
-            x.At2D(i, j) = x0 * cos_val - x1 * sin_val;
-            x.At2D(i, j + 1) = x1 * cos_val + x0 * sin_val;
+            head_data[j] = x0 * cos_val - x1 * sin_val;
+            head_data[j + 1] = x1 * cos_val + x0 * sin_val;
         }
     }
 }
@@ -226,18 +242,20 @@ void NormalNeoX(Tensor& x, size_t pos, float theta) {
     size_t heads = x.GetShape()[0];
     size_t head_dim = x.GetShape()[1];
     size_t half_dim = head_dim / 2;
+    float* x_data = x.Data();
     for (size_t i = 0; i < heads; ++i) {
+        float* head_data = x_data + i * head_dim;
         for (size_t j = 0; j < half_dim; ++j) {
             float freq = std::pow(theta, -2 * static_cast<float>(j) / static_cast<float>(head_dim));
 
             float cos_val = std::cos(pos * freq);
             float sin_val = std::sin(pos * freq);
 
-            float x0 = x.At2D(i, j);
-            float x1 = x.At2D(i, j + half_dim);
+            float x0 = head_data[j];
+            float x1 = head_data[j + half_dim];
 
-            x.At2D(i, j) = x0 * cos_val - x1 * sin_val;
-            x.At2D(i, j + half_dim) = x1 * cos_val + x0 * sin_val;
+            head_data[j] = x0 * cos_val - x1 * sin_val;
+            head_data[j + half_dim] = x1 * cos_val + x0 * sin_val;
         }
     }
 }

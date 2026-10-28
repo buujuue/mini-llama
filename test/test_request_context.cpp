@@ -13,13 +13,13 @@
 namespace {
 
 std::string SummaryValue(const std::string& summary, const std::string& key) {
-    const std::string marker = " " + key + "=";
+    const std::string marker = key + "=";
     const auto field = summary.find(marker);
     if (field == std::string::npos) {
         return {};
     }
     const auto begin = field + marker.size();
-    return summary.substr(begin, summary.find(' ', begin) - begin);
+    return summary.substr(begin, summary.find('\n', begin) - begin);
 }
 
 // 前三项移植自 references/mini-llama-cpp/tests/test_request_context.cc。
@@ -49,13 +49,13 @@ TEST(RequestContextTest, RecordsEventsAndError) {
     EXPECT_EQ(SummaryValue(summary, "backend"), "cuda");
     EXPECT_EQ(SummaryValue(summary, "model"), "models/chat");
     EXPECT_EQ(SummaryValue(summary, "status"), "error");
-    EXPECT_NE(summary.find(" error=\"boom\""), std::string::npos);
+    EXPECT_NE(summary.find("\nerror=\"boom\""), std::string::npos);
     ASSERT_FALSE(SummaryValue(summary, "total_ms").empty());
     EXPECT_GE(std::stod(SummaryValue(summary, "total_ms")), 0.0);
     const std::vector<std::string> events = request.FormatRequestTraceEvents();
     ASSERT_EQ(events.size(), 1u);
     EXPECT_EQ(events[0], "trace event: trace_id=" + trace_id
-                        + " stage=tokenize tokens=4 elapsed_ms=1.250 detail=\"prompt\"");
+                        + "\nstage=tokenize\ntokens=4\nelapsed_ms=1.250\ndetail=\"prompt\"");
 }
 
 TEST(RequestContextTest, TraceFormattingIncludesStableFields) {
@@ -66,14 +66,14 @@ TEST(RequestContextTest, TraceFormattingIncludesStableFields) {
 
     // 统计字段尚无公开写入接口，只验收当前已实现的初始值与事件输出。
     EXPECT_EQ(summary, "trace summary: trace_id=" + trace_id
-                       + " mode=generate status=ok backend=cpu model=models/tiny"
-                         " prompt_tokens=0 prefill_tokens=0 decode_tokens=0 generated_tokens=0"
-                         " model_load_ms=0.000 tokenize_ms=0.000 prefill_ms=0.000"
-                         " decode_ms=0.000 sample_ms=0.000 total_ms=0.000");
+                       + "\nmode=generate\nstatus=ok\nbackend=cpu\nmodel=models/tiny"
+                         "\nprompt_tokens=0\nprefill_tokens=0\ndecode_tokens=0\ngenerated_tokens=0"
+                         "\nmodel_load_ms=0.000\ntokenize_ms=0.000\nprefill_ms=0.000"
+                         "\ndecode_ms=0.000\nsample_ms=0.000\ntotal_ms=0.000");
     const std::vector<std::string> events = request.FormatRequestTraceEvents();
     ASSERT_EQ(events.size(), 1u);
     EXPECT_EQ(events[0], "trace event: trace_id=" + trace_id
-                        + " stage=prefill tokens=3 elapsed_ms=3.000 detail=\"batch\"");
+                        + "\nstage=prefill\ntokens=3\nelapsed_ms=3.000\ndetail=\"batch\"");
 }
 
 TEST(RequestContextTest, SequentialRequestsHaveDistinctTraceIds) {
@@ -104,8 +104,8 @@ TEST(RequestContextTest, EventsPreserveStageOrderAndOmitEmptyDetail) {
     ASSERT_EQ(events.size(), names.size());
     for (size_t i = 0; i < names.size(); ++i) {
         SCOPED_TRACE(names[i]);
-        EXPECT_EQ(events[i], "trace event: trace_id=" + trace_id + " stage=" + names[i]
-                            + " tokens=0 elapsed_ms=1.235");
+        EXPECT_EQ(events[i], "trace event: trace_id=" + trace_id + "\nstage=" + names[i]
+                            + "\ntokens=0\nelapsed_ms=1.235");
     }
 }
 
@@ -130,14 +130,14 @@ TEST(RequestContextTest, ErrorCanBeReplacedAndCleared) {
     request.SetError("latest error");
     EXPECT_TRUE(view.IsError());
     const auto summary = view.FormatRequestTraceSummary();
-    EXPECT_NE(summary.find(" error=\"latest error\""), std::string::npos);
+    EXPECT_NE(summary.find("\nerror=\"latest error\""), std::string::npos);
     EXPECT_EQ(summary.find("first error"), std::string::npos);
 
     request.SetError("");
     EXPECT_FALSE(view.IsError());
     const auto cleared = view.FormatRequestTraceSummary();
     EXPECT_EQ(SummaryValue(cleared, "status"), "ok");
-    EXPECT_EQ(cleared.find(" error="), std::string::npos);
+    EXPECT_EQ(cleared.find("\nerror="), std::string::npos);
 }
 
 } // namespace

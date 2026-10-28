@@ -1,6 +1,8 @@
 # 第三方代码许可
 
-本项目的 tokenizer、RadixTree 移植实现与相关测试、RequestContext 参考实现，以及 KV cache、batch 和 RequestContext 的实例移植测试，源自本地参考项目 `references/mini-llama-cpp/`，原作者为 yus3nable，采用 MIT 许可。
+本项目的 tokenizer、RadixTree 移植实现与相关测试、RequestContext 参考实现、前向输入检查，以及 KV cache、batch 和 RequestContext 的实例移植测试，源自本地参考项目 `references/mini-llama-cpp/`，原作者为 yus3nable，采用 MIT 许可。
+
+`src/forward.cpp` 中的 `CheckForwardInputs` 适配自上游 `src/forward.cc` 的 `ValidateForwardInputs`。
 
 本次新增测试的对应来源：
 
