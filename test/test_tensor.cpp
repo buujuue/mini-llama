@@ -1,3 +1,6 @@
+// Copyright (c) 2026 yus3nable
+// SPDX-License-Identifier: MIT
+
 #include <gtest/gtest.h>
 
 #include <cstddef>
@@ -9,6 +12,34 @@
 #include "tensor.h"
 
 namespace {
+
+// 移植自参考 test_tensor.cc 的 ReshapeChecked 正常与元素数不匹配测试。
+TEST(TensorTest, ReshapePreservesRowMajorValuesAndOriginalShape) {
+    Tensor tensor({2, 3});
+    for (size_t i = 0; i < 6; ++i) {
+        tensor.Data()[i] = static_cast<float>(i);
+    }
+    Tensor reshaped = tensor.Reshape({3, 2}, "TestReshape");
+    EXPECT_EQ(reshaped.GetNumDims(), 2u);
+    EXPECT_EQ(reshaped.GetShape(), (std::vector<size_t>{3, 2}));
+    EXPECT_EQ(tensor.GetShape(), (std::vector<size_t>{2, 3}));
+    for (size_t i = 0; i < 6; ++i) {
+        EXPECT_FLOAT_EQ(reshaped.At2D(i / 2, i % 2), static_cast<float>(i));
+    }
+}
+
+TEST(TensorTest, ReshapeRejectsIncompatibleElementCount) {
+    const Tensor tensor({2, 3});
+    EXPECT_THROW(tensor.Reshape({4, 2}, "TestReshapeFail"), std::runtime_error);
+}
+
+TEST(TensorTest, ReshapeRejectsZeroAndOverflowingDimensions) {
+    const Tensor tensor({2, 3});
+    // 本项目维度使用 size_t，以零维度和溢出替代上游的负维度场景。
+    EXPECT_THROW(tensor.Reshape({0, 6}, "TestReshapeZero"), std::runtime_error);
+    EXPECT_THROW(tensor.Reshape({std::numeric_limits<size_t>::max(), 2},
+                                "TestReshapeOverflow"), std::runtime_error);
+}
 
 // 默认构造的张量没有数据，所有元素访问都应报错。
 TEST(TensorTest, DefaultConstructionRejectsElementAccess) {
@@ -179,6 +210,71 @@ TEST(TensorTest, RowPointersExposeContiguousRows) {
     EXPECT_EQ(tensor.RowPtr(1), tensor.RowPtr(0) + 4);
     EXPECT_EQ(tensor.RowPtr(2), tensor.RowPtr(0) + 8);
     EXPECT_EQ(&tensor.At2D(2, 3), tensor.RowPtr(0) + 11);
+}
+
+// 移植课程 AssertShape 正常测试，同时验证 const 调用不改变形状与数据。
+TEST(TensorTest, AssertShapeAcceptsMatchingShapeWithoutChangingTensor) {
+    const Tensor tensor({2, 3, 4}, 1.5f);
+    const float* data = tensor.Data();
+
+    EXPECT_NO_THROW(tensor.AssertShape({2, 3, 4}, "TestPass"));
+    EXPECT_EQ(tensor.GetShape(), (std::vector<size_t>{2, 3, 4}));
+    EXPECT_EQ(tensor.GetDataSize(), 24u);
+    EXPECT_EQ(tensor.Data(), data);
+    for (size_t i = 0; i < tensor.GetDataSize(); ++i) {
+        EXPECT_FLOAT_EQ(tensor.Data()[i], 1.5f);
+    }
+}
+
+// 移植课程 AssertShape 异常测试，同时检查调用位置、预期和实际形状。
+TEST(TensorTest, AssertShapeMismatchReportsCallerAndBothShapes) {
+    const Tensor tensor({2, 3, 4});
+
+    try {
+        tensor.AssertShape({2, 3, 5}, "TestFail");
+        FAIL() << "expected exception for shape mismatch";
+    } catch (const std::runtime_error& error) {
+        const std::string message = error.what();
+        EXPECT_NE(message.find("TestFail"), std::string::npos);
+        EXPECT_NE(message.find("预期 shape: [2, 3, 5]"), std::string::npos);
+        EXPECT_NE(message.find("实际 shape: [2, 3, 4]"), std::string::npos);
+    }
+}
+
+// 元素总数相同也必须逐轴匹配，不能只比较元素数。
+TEST(TensorTest, AssertShapeRejectsDifferentRankOrAxisOrderWithSameElementCount) {
+    const Tensor tensor({2, 3});
+
+    EXPECT_THROW(tensor.AssertShape({6}, "rank"), std::runtime_error);
+    EXPECT_THROW(tensor.AssertShape({1, 2, 3}, "rank"), std::runtime_error);
+    EXPECT_THROW(tensor.AssertShape({3, 2}, "axis order"), std::runtime_error);
+}
+
+// 仅比较形状：默认空张量与零维标量的 shape 均为 []。
+TEST(TensorTest, AssertShapeHandlesEmptyShapes) {
+    const Tensor empty;
+    const Tensor scalar(std::vector<size_t>{}, 2.5f);
+
+    EXPECT_NO_THROW(empty.AssertShape({}, "empty"));
+    EXPECT_NO_THROW(scalar.AssertShape({}, "scalar"));
+    EXPECT_THROW(empty.AssertShape({1}, "empty"), std::runtime_error);
+    EXPECT_THROW(scalar.AssertShape({1}, "scalar"), std::runtime_error);
+}
+
+// 未提供调用名称时，仍应安全抛出带有形状信息的异常。
+TEST(TensorTest, AssertShapeHandlesNullCaller) {
+    const Tensor tensor({2, 3});
+
+    EXPECT_NO_THROW(tensor.AssertShape({2, 3}, nullptr));
+    try {
+        tensor.AssertShape({3, 2}, nullptr);
+        FAIL() << "expected exception for shape mismatch";
+    } catch (const std::runtime_error& error) {
+        const std::string message = error.what();
+        EXPECT_NE(message.find("AssertShape"), std::string::npos);
+        EXPECT_NE(message.find("预期 shape: [3, 2]"), std::string::npos);
+        EXPECT_NE(message.find("实际 shape: [2, 3]"), std::string::npos);
+    }
 }
 
 // 行指针只适用于二维张量，其他维度应报错。

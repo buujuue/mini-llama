@@ -12,7 +12,7 @@ struct ModelConfig {
     size_t dim = 32;
     size_t hidden_dim = 86;
     size_t layers_num = 2;
-    size_t head_num = 4;
+    size_t heads_num = 4;
     size_t kv_heads_num = 4;
     size_t head_dim = 8;
     size_t max_seq_len = 128;

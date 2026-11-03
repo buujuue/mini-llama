@@ -3,15 +3,16 @@
 #include <cstddef>
 #include <vector>
 
-class batch{
+class Batch{
 public:
-    batch() = delete;
-    batch(int token, size_t pos = 0);
-    batch(const std::vector<int>& tokens, size_t start_pos);
+    Batch() = delete;
+    Batch(int token, size_t pos = 0);
+    Batch(const std::vector<int>& tokens, size_t start_pos);
+    void check() const;
     size_t size() const {return tokens_.size();}
-    const std::vector<int>& GetTokens() const {return tokens_;}
-    const std::vector<size_t>& GetPositions() const {return positions_;}
+    int GetToken(int i) const;
+    size_t GetPos(int i) const;
 private:
     std::vector<int> tokens_;
-    std::vector<size_t> positions_;
+    size_t start_pos_;
 };

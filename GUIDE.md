@@ -20,11 +20,11 @@ mini_llama/
 │           ├── SKILL.md            # 技能说明与诊断工作流
 │           └── agents/openai.yaml  # 禁止自动调用的策略
 ├── include/                       # 自己实现的头文件
-│   ├── tensor.h                    # Tensor：构造、元信息/数据查询、通用/1D–4D 访问和行指针
+│   ├── tensor.h                    # Tensor：构造、元信息/数据查询、AssertShape/Reshape、通用/1D–4D 访问和行指针
 │   ├── tool.h                      # 公共类型与编译期常量，当前定义 RopeType
 │   ├── ops.h                       # 六个 F32 基础算子的接口、RoPE 辅助函数与形状约定
 │   ├── model.h                     # ModelConfig、LayerWeights 与 Model 的 F32 结构占位，加载逻辑待实现
-│   ├── batch.h                     # batch：单 token/序列批次构造、位置偏移及只读 token/位置查询
+│   ├── batch.h                     # Batch：单 token/序列批次构造、GetToken/GetPos 按下标查询 token 与位置
 │   ├── context.h                   # Context：绑定模型，按配置初始化独立 KV cache 与请求状态
 │   ├── forward.h                   # CheckForwardInputs：单 token 前向计算的输入校验接口
 │   ├── kv_cache.h                  # KvCache 写入与按层、位置、KV 头读取指针的接口
@@ -34,8 +34,8 @@ mini_llama/
 ├── src/                           # 自己实现的源文件
 │   ├── tensor.cpp                  # Tensor 实现与形状、索引检查
 │   ├── ops.cpp                     # Matmul/Linear Naive 实现，以及 RmsNorm、Softmax、SwiGlu、Rope
-│   ├── forward.cpp                 # 已接入静态库的前向输入检查：加载状态、token/位置、层数与 embedding 容量
-│   ├── batch.cpp                   # 批次 token 复制与连续位置构造；当前仅在 batch_tests 中编译
+│   ├── forward.cpp                 # 前向输入检查、CPU 注意力与 SwiGlu/FFN 前向；层级/Token 前向待完成
+│   ├── batch.cpp                   # 批次 token 复制、保存起始位置并按下标计算连续位置；当前仅在 batch_tests 中编译
 │   ├── kv_cache.cpp                # KV cache 实现；当前在 kv_cache_tests/context_tests/forward_tests 中编译
 │   ├── radix_tree.cpp              # 已接入静态库的 RadixTree 实现，支持节点分裂、清空和移动
 │   ├── request_context.cpp         # 请求计时、trace ID 与摘要/事件格式化；当前仅在 request_context_tests 中编译
@@ -45,16 +45,17 @@ mini_llama/
 │       └── bpe_tokenizer.cpp       # BPE 加载、字节映射、合并、特殊 token、解码与工厂
 ├── test/                          # GoogleTest 单元测试
 │   ├── CMakeLists.txt              # 下载 GoogleTest、构建九个测试程序、注册 CTest 并部署 MinGW 运行库
-│   ├── test_tensor.cpp             # Tensor 正常行为、const 访问与边界测试
+│   ├── test_tensor.cpp             # Tensor 访问、AssertShape、Reshape 移植与边界测试
 │   ├── test_ops.cpp                # 六个已实现基础算子的数值、形状与边界验收，CTest 标签 ops
 │   ├── test_tokenizer.cpp          # ASCII/JSON/BPE 与工厂测试，自建词表，CTest 标签 tokenizer
 │   ├── test_kv_cache.cpp           # 移植课程 KV cache 的 6 项测试，CTest 标签 kv_cache
 │   ├── test_radix_tree.cpp         # RadixTree 的 8 项移植测试及 7 项补充测试，CTest 标签 radix_tree
-│   ├── test_batch.cpp              # 批次构造的 4 项移植测试及 2 项补充测试，CTest 标签 batch
+│   ├── test_batch.cpp              # 批次构造与下标查询的 4 项移植测试及 3 项补充测试，CTest 标签 batch
 │   ├── test_context.cpp            # Context 初始化与请求隔离的 2 项补充测试，CTest 标签 context
-│   ├── test_forward.cpp            # CheckForwardInputs 正常、边界与异常的 8 项测试，CTest 标签 forward
+│   ├── test_forward.cpp            # 21 项输入检查、CPU 单 token/批次前向、GQA 与 RoPE 测试；固定内存权重，CTest 标签 forward
 │   └── test_request_context.cpp    # 请求 trace 的 3 项适配移植测试及 4 项补充测试，CTest 标签 request_context
 ├── docs/                          # Git 忽略：本地文档
+│   ├── llama-inference-reading.md  # Llama 推理架构资料：中文优先、课程模块对应与阅读顺序
 │   ├── agents/                    # 工程技能使用的本地约定
 │   └── source/
 ├── references/                    # Git 忽略：上游参考源码
@@ -73,9 +74,11 @@ mini_llama/
 │   │   ├── test/radix_tree_tests.exe # RadixTree 测试程序
 │   │   ├── test/batch_tests.exe    # 批次构造测试程序
 │   │   ├── test/context_tests.exe  # Context 初始化与请求隔离测试程序
-│   │   ├── test/forward_tests.exe  # 前向输入检查测试程序
+│   │   ├── test/forward_tests.exe  # 前向输入检查与 CPU 前向测试程序
 │   │   ├── test/request_context_tests.exe # 请求 trace 测试程序
-│   │   └── test/*.dll             # 与构建编译器配套的 MinGW 运行库，避免 PATH 中旧版本冲突
+│   │   ├── test/*.dll             # 与构建编译器配套的 MinGW 运行库，避免 PATH 中旧版本冲突
+│   │   ├── ctest-run.log          # 最新全量测试输出
+│   │   └── ctest-results.xml      # 本次全量测试的 JUnit 报告
 │   ├── windows-no-tests/           # 验证 BUILD_TESTING=OFF 的纯库构建
 │   └── .npm-cache/                # 文档检索工具的本地缓存
 ├── compile_commands.json          # Git 忽略：编译命令数据库

@@ -10,7 +10,7 @@ mini_llama 是一个面向 Llama 大语言模型推理的 C++17 学习与实践�
 - **基础算子**：矩阵乘法（Matmul）、线性变换（Linear）、均方根归一化（RmsNorm）、Softmax、SwiGLU 和旋转位置编码（RoPE，支持 Normal 与 NeoX 两种布局）。
 - **分词器**：ASCII、JSON 词表最长匹配和字节级 BPE（课程简化实现），以及 JSON/ASCII 回退和 BPE 创建接口。保留原有 `JsonVocabTokenizor` 名称，并提供与实例一致的 `JsonVocabTokenizer` 别名。
 - **前缀树**：`RadixTree` 支持 token 序列插入、压缩节点分裂、最长公共前缀长度查询、去重计数和清空，用于前缀缓存索引；不持有 KV cache 数据。
-- **批处理与上下文**：`batch` 构造单 token 或序列批次并生成连续位置；`Context` 绑定模型、按配置初始化独立 KV cache 与请求状态。
+- **批处理与上下文**：`Batch` 构造单 token 或序列批次，通过 `GetPos(int i)` 按起始位置与下标计算连续位置；`Context` 绑定模型、按配置初始化独立 KV cache 与请求状态。
 - **请求跟踪**：`RequestContext` 提供 trace ID、请求计时、事件记录、错误状态与只读摘要/事件格式化。
 - **单元测试**：使用 GoogleTest 和 CTest 验证张量访问、算子数值结果、形状约束、分词器、KV cache、前缀树、批次构造、上下文初始化与请求跟踪；分词器测试自行生成小词表，无需下载模型。
 
@@ -56,6 +56,14 @@ MinGW 构建会把编译器配套的运行库复制到测试程序目录，避�
 ctest --test-dir build/windows -C Debug -L "^(batch|context|request_context)$" --output-on-failure
 ```
 
-Linux / WSL 将构建目录改为 `build/linux`。本次移植覆盖已实现的构造、事件和格式化行为；依赖模型加载与 Forward 的实例测试待相应功能实现后接入。`RequestContext` 的各阶段汇总统计字段尚无公开更新接口，目前只验收其初始零值，事件中的非零耗时和 token 数单独验证。
+Linux / WSL 将构建目录改为 `build/linux`。`RequestContext` 的各阶段汇总统计字段尚无公开更新接口，目前只验收其初始零值，事件中的非零耗时和 token 数单独验证。
+
+前向测试使用固定的内存 F32 权重，无需模型加载器或外部模型文件。已移植单 token 输出与 KV 写入、连续位置、非法输入，以及批次与逐 token 计算等价、历史更新和空批次拒绝测试；尚未实现的采样器与量化测试暂不接入。单独运行前向测试：
+
+```powershell
+ctest --test-dir build/windows -C Debug -L forward --output-on-failure
+```
+
+2026-11-03 最新 Windows / MinGW Debug 验证：编译成功，183 项测试全部通过，包含 50 项算子测试及此前失败的 Batch、GQA 和 NeoX 测试。本轮测试适配为 7 处 `Rope` 调用显式传入 `RopeType::Normal`，未修改功能代码；完整输出位于 `build/windows/ctest-run.log`。
 
 JSON 词表使用 `[{"id": 0, "content": "<unk>", "special": true}, ...]` 格式。BPE 使用 `{"token": id, ...}` 词表、每行一对符号的合并规则和可选的 `bos_id` / `eos_id` / `unk_id` 配置。ASCII 与 JSON 编码添加 BOS；BPE 不自动添加 BOS/EOS，`DecodeToken` 返回词表映射符号，`Decode` 还原文本字节。

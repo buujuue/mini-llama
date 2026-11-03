@@ -23,7 +23,7 @@ KvCache::KvCache(size_t layers_num, size_t seq_len_max, size_t kv_heads_num, siz
     is_start_ = true;
 }
 
-void KvCache::Write(size_t layer, size_t pos, Tensor& k, Tensor& v){
+void KvCache::Write(size_t layer, size_t pos, const Tensor& k, const Tensor& v){
     if (!is_start_) {
         throw std::runtime_error(
             "KvCache::Write 无法写入未初始化的缓存：is_start_: false"

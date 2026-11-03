@@ -58,7 +58,9 @@ target_link_libraries(request_context_tests PRIVATE mini_llama GTest::gtest_main
 add_executable(context_tests test_context.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
 target_link_libraries(context_tests PRIVATE mini_llama GTest::gtest_main)
 
-add_executable(forward_tests test_forward.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
+# test_forward.cpp 直接包含 forward.cpp，以测试内部输入检查而不改动生产接口。
+add_executable(forward_tests test_forward.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp"
+               "${PROJECT_SOURCE_DIR}/src/batch.cpp")
 target_link_libraries(forward_tests PRIVATE mini_llama GTest::gtest_main)
 
 include(GoogleTest)

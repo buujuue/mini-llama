@@ -402,11 +402,11 @@ TEST(OpsSwiGluTest, RejectsDifferentShapesWithSameElementCount) {
 
 // RoPE 的 head_dim=4、pos=1、theta=10000 时，两对旋转角分别为 1 和 0.01。
 // 使用固定数值检查结对、方向和频率，并允许 Q 与 K 的 head 数不同。
-TEST(OpsRopeTest, DefaultNormalModeRotatesAdjacentPairsInPlace) {
+TEST(OpsRopeTest, NormalModeRotatesAdjacentPairsInPlace) {
     Tensor q = TensorWithValues({1, 4}, {1, 0, 0, 1});
     Tensor k = TensorWithValues({2, 4}, {0, 1, 1, 0, 1, 1, -1, -1});
 
-    Rope(q, k, 1, 10000.0f);
+    Rope(q, k, 1, 10000.0f, RopeType::Normal);
 
     ExpectTensorNear(q, {1, 4}, {0.54030231f, 0.84147098f, -0.00999983f, 0.99995000f});
     ExpectTensorNear(k, {2, 4},
@@ -443,35 +443,35 @@ TEST(OpsRopeTest, RejectsNonMatrixQ) {
     Tensor q({4});
     Tensor k({2, 4});
 
-    EXPECT_THROW(Rope(q, k, 0, 10000.0f), std::runtime_error);
+    EXPECT_THROW(Rope(q, k, 0, 10000.0f, RopeType::Normal), std::runtime_error);
 }
 
 TEST(OpsRopeTest, RejectsNonMatrixK) {
     Tensor q({2, 4});
     Tensor k({4});
 
-    EXPECT_THROW(Rope(q, k, 0, 10000.0f), std::runtime_error);
+    EXPECT_THROW(Rope(q, k, 0, 10000.0f, RopeType::Normal), std::runtime_error);
 }
 
 TEST(OpsRopeTest, RejectsMismatchedHeadDimension) {
     Tensor q({2, 4});
     Tensor k({1, 6});
 
-    EXPECT_THROW(Rope(q, k, 0, 10000.0f), std::runtime_error);
+    EXPECT_THROW(Rope(q, k, 0, 10000.0f, RopeType::Normal), std::runtime_error);
 }
 
 TEST(OpsRopeTest, RejectsOddHeadDimension) {
     Tensor q({2, 3});
     Tensor k({1, 3});
 
-    EXPECT_THROW(Rope(q, k, 0, 10000.0f), std::runtime_error);
+    EXPECT_THROW(Rope(q, k, 0, 10000.0f, RopeType::Normal), std::runtime_error);
 }
 
 TEST(OpsRopeTest, RejectsNegativePosition) {
     Tensor q({2, 4});
     Tensor k({1, 4});
 
-    EXPECT_THROW(Rope(q, k, -1, 10000.0f), std::out_of_range);
+    EXPECT_THROW(Rope(q, k, -1, 10000.0f, RopeType::Normal), std::out_of_range);
 }
 
 TEST(OpsRopeTest, RejectsNonpositiveOrNonfiniteTheta) {
@@ -483,7 +483,7 @@ TEST(OpsRopeTest, RejectsNonpositiveOrNonfiniteTheta) {
         Tensor q({2, 4});
         Tensor k({1, 4});
 
-        EXPECT_THROW(Rope(q, k, 0, theta), std::runtime_error);
+        EXPECT_THROW(Rope(q, k, 0, theta, RopeType::Normal), std::runtime_error);
     }
 }
 
