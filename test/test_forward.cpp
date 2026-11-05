@@ -117,8 +117,8 @@ TEST_F(ForwardInputsTest, RejectsEmbeddingSizeOverflow) {
 // 固定且非零的 F32 权重，替代尚未实现的 LoadModel，测试不依赖外部模型文件。
 Tensor FixedWeights(const std::vector<size_t>& shape, int seed) {
     Tensor tensor(shape);
-    for (size_t i = 0; i < tensor.GetDataSize(); ++i) {
-        tensor.Data()[i] = static_cast<float>(static_cast<int>((i + seed) % 11) - 5)
+    for (size_t i = 0; i < tensor.size(); ++i) {
+        tensor.data[i] = static_cast<float>(static_cast<int>((i + seed) % 11) - 5)
                            * 0.05f;
     }
     return tensor;
@@ -157,17 +157,17 @@ Model MakeForwardModel(size_t heads = 1, size_t kv_heads = 1) {
 
 void ExpectFiniteLogits(const Tensor& logits, size_t vocab_size) {
     ASSERT_EQ(logits.GetShape(), (std::vector<size_t>{vocab_size}));
-    ASSERT_EQ(logits.GetDataSize(), vocab_size);
+    ASSERT_EQ(logits.size(), vocab_size);
     for (size_t i = 0; i < vocab_size; ++i) {
-        EXPECT_TRUE(std::isfinite(logits.Data()[i])) << "logit=" << i;
+        EXPECT_TRUE(std::isfinite(logits.data[i])) << "logit=" << i;
     }
 }
 
 void ExpectSameLogits(const Tensor& actual, const Tensor& expected) {
     ASSERT_EQ(actual.GetShape(), expected.GetShape());
-    ASSERT_EQ(actual.GetDataSize(), expected.GetDataSize());
-    for (size_t i = 0; i < actual.GetDataSize(); ++i) {
-        EXPECT_NEAR(actual.Data()[i], expected.Data()[i], 1e-6f) << "logit=" << i;
+    ASSERT_EQ(actual.size(), expected.size());
+    for (size_t i = 0; i < actual.size(); ++i) {
+        EXPECT_NEAR(actual.data[i], expected.data[i], 1e-6f) << "logit=" << i;
     }
 }
 
@@ -290,12 +290,12 @@ TEST(ForwardTest, AttentionSharesKvHeadAndAveragesEqualScores) {
     KvCache cache(1, 3, 1, 2);
     Tensor key({1, 2}, 0.0f);
     Tensor previous_value({1, 2});
-    previous_value.Data()[0] = 2.0f;
-    previous_value.Data()[1] = 4.0f;
+    previous_value.data[0] = 2.0f;
+    previous_value.data[1] = 4.0f;
     cache.Write(0, 0, key, previous_value);
     Tensor value({1, 2});
-    value.Data()[0] = 6.0f;
-    value.Data()[1] = 8.0f;
+    value.data[0] = 6.0f;
+    value.data[1] = 8.0f;
     const Tensor query({2, 2}, 0.0f);
     const Tensor actual = AttentionForward(model, query, key, value, 1, 0, cache,
                                            2, 1, 2, BackendKind::Cpu);
@@ -317,8 +317,8 @@ TEST(ForwardTest, ForwardRopeHonorsNeoXMode) {
     const Model model = MakeForwardModel();
     Tensor q({1, 4}, 0.0f);
     Tensor k({1, 4}, 0.0f);
-    q.Data()[0] = 1.0f;
-    k.Data()[3] = 1.0f;
+    q.data[0] = 1.0f;
+    k.data[3] = 1.0f;
     ForwardRope(model, q, k, 1, 10000.0f, RopeType::NeoX, BackendKind::Cpu);
     // NeoX 配对为 (0,2)、(1,3)，角度分别为 1 和 0.01。
     EXPECT_NEAR(q.At2D(0, 0), std::cos(1.0f), 1e-6f);

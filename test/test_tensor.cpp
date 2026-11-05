@@ -7,17 +7,42 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "tensor.h"
 
 namespace {
 
+// 非 const 张量也只能取得只读形状，防止通过查询接口修改形状。
+static_assert(std::is_same_v<decltype(std::declval<Tensor&>().GetShape()),
+                             const std::vector<size_t>&>);
+static_assert(std::is_same_v<decltype(std::declval<const Tensor&>().GetShape()),
+                             const std::vector<size_t>&>);
+
+TEST(TensorTest, DirectDataAccessSharesStorageWithTensorAccessors) {
+    Tensor tensor({2, 3});
+    tensor.data = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
+    const Tensor& view = tensor;
+
+    EXPECT_EQ(tensor.size(), tensor.data.size());
+    EXPECT_EQ(tensor.GetShape(), (std::vector<size_t>{2, 3}));
+    EXPECT_EQ(tensor.RowPtr(1), tensor.data.data() + 3);
+    EXPECT_EQ(view.RowPtr(1), view.data.data() + 3);
+    EXPECT_FLOAT_EQ(view.At2D(1, 2), 6.0f);
+
+    tensor.data[4] = -2.0f;
+    EXPECT_FLOAT_EQ(view.At({1, 1}), -2.0f);
+    tensor.At2D(0, 1) = 8.0f;
+    EXPECT_FLOAT_EQ(view.data[1], 8.0f);
+}
+
 // 移植自参考 test_tensor.cc 的 ReshapeChecked 正常与元素数不匹配测试。
 TEST(TensorTest, ReshapePreservesRowMajorValuesAndOriginalShape) {
     Tensor tensor({2, 3});
     for (size_t i = 0; i < 6; ++i) {
-        tensor.Data()[i] = static_cast<float>(i);
+        tensor.data[i] = static_cast<float>(i);
     }
     Tensor reshaped = tensor.Reshape({3, 2}, "TestReshape");
     EXPECT_EQ(reshaped.GetNumDims(), 2u);
@@ -215,14 +240,14 @@ TEST(TensorTest, RowPointersExposeContiguousRows) {
 // 移植课程 AssertShape 正常测试，同时验证 const 调用不改变形状与数据。
 TEST(TensorTest, AssertShapeAcceptsMatchingShapeWithoutChangingTensor) {
     const Tensor tensor({2, 3, 4}, 1.5f);
-    const float* data = tensor.Data();
+    const float* data = tensor.data.data();
 
     EXPECT_NO_THROW(tensor.AssertShape({2, 3, 4}, "TestPass"));
     EXPECT_EQ(tensor.GetShape(), (std::vector<size_t>{2, 3, 4}));
-    EXPECT_EQ(tensor.GetDataSize(), 24u);
-    EXPECT_EQ(tensor.Data(), data);
-    for (size_t i = 0; i < tensor.GetDataSize(); ++i) {
-        EXPECT_FLOAT_EQ(tensor.Data()[i], 1.5f);
+    EXPECT_EQ(tensor.size(), 24u);
+    EXPECT_EQ(tensor.data.data(), data);
+    for (size_t i = 0; i < tensor.size(); ++i) {
+        EXPECT_FLOAT_EQ(tensor.data[i], 1.5f);
     }
 }
 

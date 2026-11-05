@@ -2,6 +2,8 @@
 
 本项目的 tokenizer、RadixTree 移植实现与相关测试、RequestContext 参考实现、前向输入检查，以及 KV cache、batch 和 RequestContext 的实例移植测试，源自本地参考项目 `references/mini-llama-cpp/`，原作者为 yus3nable，采用 MIT 许可。
 
+`include/sampler.h` 与 `src/sampler.cpp` 的采样器构造、统一 `Sample` 入口、贪心、Top-k 和温度采样及输入校验适配自上游 `include/mini_llama/sampler.h` 与 `src/sampler.cc`；候选项改为本项目的 `Candidate`，并通过 `SampleTemperature(const std::vector<Candidate>&, float)` 重载复用温度采样逻辑。`test/test_sampler.cpp` 适配 `tests/gtest/test_sampler.cc` 的统一入口及 Top-k 测试，并补充温度权重、数值稳定性、随机状态和输入边界检查。
+
 `src/forward.cpp` 中的 `CheckForwardInputs` 适配自上游 `src/forward.cc` 的 `ValidateForwardInputs`；`ComputeHead` 与 CPU 注意力逐头汇总适配自同文件 `AttentionForward` 中的 `compute_head` lambda 及调用循环。
 
 `src/forward.cpp` 中的 `ForwardAdd` 与注意力输出投影的一维变形、残差相加适配自上游 `src/forward.cc`，使用本项目的 `Tensor::Reshape`、`AssertShape` 和显式后端参数。

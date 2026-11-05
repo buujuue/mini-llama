@@ -20,10 +20,10 @@ namespace {
 Tensor TensorWithValues(const std::vector<size_t>& shape,
                         std::initializer_list<float> values) {
     Tensor tensor(shape);
-    if (tensor.GetDataSize() != values.size()) {
+    if (tensor.size() != values.size()) {
         throw std::invalid_argument("测试数据的元素数与形状不一致");
     }
-    std::copy(values.begin(), values.end(), tensor.Data());
+    std::copy(values.begin(), values.end(), tensor.data.data());
     return tensor;
 }
 
@@ -31,13 +31,13 @@ void ExpectTensorNear(const Tensor& actual, const std::vector<size_t>& shape,
                       std::initializer_list<float> expected,
                       float tolerance = 1e-5f) {
     ASSERT_EQ(actual.GetShape(), shape);
-    ASSERT_EQ(actual.GetDataSize(), expected.size());
+    ASSERT_EQ(actual.size(), expected.size());
 
     size_t index = 0;
     for (const float value : expected) {
         SCOPED_TRACE(index);
-        EXPECT_TRUE(std::isfinite(actual.Data()[index]));
-        EXPECT_NEAR(actual.Data()[index], value, tolerance);
+        EXPECT_TRUE(std::isfinite(actual.data[index]));
+        EXPECT_NEAR(actual.data[index], value, tolerance);
         ++index;
     }
 }
@@ -116,8 +116,8 @@ TEST(OpsMatmulTest, LeavesInputsUnchangedAndReturnsIndependentStorage) {
 
     Tensor result = Matmul(a, b);
     ExpectTensorNear(result, {2, 2}, {19, 22, 43, 50});
-    EXPECT_NE(result.Data(), a.Data());
-    EXPECT_NE(result.Data(), b.Data());
+    EXPECT_NE(result.data.data(), a.data.data());
+    EXPECT_NE(result.data.data(), b.data.data());
     result.At2D(0, 0) = -100.0f;
 
     ExpectTensorNear(a, {2, 2}, {1, 2, 3, 4});
@@ -193,7 +193,7 @@ TEST(OpsMatmulTest, RejectsMismatchedInnerDimension) {
 TEST(OpsMatmulTest, RejectsMismatchedInnerDimensionDespiteEqualElementCounts) {
     const Tensor a({2, 3});
     const Tensor b({2, 3});
-    ASSERT_EQ(a.GetDataSize(), b.GetDataSize());
+    ASSERT_EQ(a.size(), b.size());
 
     ExpectMatmulError(a, b, {"内部维度不匹配", "a.shape[1]: 3", "b.shape[0]: 2",
                              "a shape: [2, 3]", "b shape: [2, 3]"});
@@ -231,9 +231,9 @@ TEST(OpsLinearTest, SupportsSignedValuesAndIndependentStorageForBothInputRanks) 
 
         Tensor result = Linear(x, weight);
         ExpectTensorNear(result, output_shape, {-6, -2});
-        EXPECT_NE(result.Data(), x.Data());
-        EXPECT_NE(result.Data(), weight.Data());
-        result.Data()[0] = 100.0f;
+        EXPECT_NE(result.data.data(), x.data.data());
+        EXPECT_NE(result.data.data(), weight.data.data());
+        result.data[0] = 100.0f;
 
         ExpectTensorNear(x, shape, {1, -2, 0.5f});
         ExpectTensorNear(weight, {2, 3}, {2, 3, -4, -1, 2, 6});
@@ -334,10 +334,10 @@ TEST(OpsSoftmaxTest, ProducesKnownProbabilityDistribution) {
 
     ExpectTensorNear(result, {3}, {0.09003057f, 0.24472847f, 0.66524096f}, 1e-6f);
     float sum = 0.0f;
-    for (size_t i = 0; i < result.GetDataSize(); ++i) {
-        EXPECT_GE(result.Data()[i], 0.0f);
-        EXPECT_LE(result.Data()[i], 1.0f);
-        sum += result.Data()[i];
+    for (size_t i = 0; i < result.size(); ++i) {
+        EXPECT_GE(result.data[i], 0.0f);
+        EXPECT_LE(result.data[i], 1.0f);
+        sum += result.data[i];
     }
     EXPECT_NEAR(sum, 1.0f, 1e-6f);
 }

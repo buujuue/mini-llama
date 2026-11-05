@@ -33,9 +33,9 @@ static Tensor MatmulNaive(const Tensor& a, const Tensor& b) {
     size_t inner_dim = a.GetShape()[1];
     size_t n = b.GetShape()[1];
     Tensor c({m, n}, 0.0f);
-    const float* a_data = a.Data();
-    const float* b_data = b.Data();
-    float* c_data = c.Data();
+    const float* a_data = a.data.data();
+    const float* b_data = b.data.data();
+    float* c_data = c.data.data();
     for (size_t i = 0; i < m; ++i) {
         for (size_t j = 0; j < n; ++j) {
             float sum = 0.0f;
@@ -78,9 +78,9 @@ static Tensor LinearNaive(const Tensor& x, const Tensor& weight) {
     const size_t in_features = weight.GetShape()[1];
     const size_t out_features = weight.GetShape()[0];
     Tensor result(x.GetNumDims() == 1 ? std::vector<size_t>{out_features} : std::vector<size_t>{1, out_features}, 0.0f);
-    const float* x_data = x.Data();
-    const float* weight_data = weight.Data();
-    float* result_data = result.Data();
+    const float* x_data = x.data.data();
+    const float* weight_data = weight.data.data();
+    float* result_data = result.data.data();
     for (size_t j = 0; j < out_features; ++j) {
         float sum = 0.0f;
         for (size_t k = 0; k < in_features; ++k) {
@@ -147,8 +147,8 @@ Tensor RmsNorm(const Tensor& x, const Tensor& weight, float eps) {
             "，x shape: " + ShapeToString(x) + "，weight shape: " + ShapeToString(weight) + "。");
     }
 
-    const float* x_data = x.Data();
-    const float* weight_data = weight.Data();
+    const float* x_data = x.data.data();
+    const float* weight_data = weight.data.data();
     float tmp = 0.0f;
 
     for (size_t i = 0; i < dim; ++i) {
@@ -158,7 +158,7 @@ Tensor RmsNorm(const Tensor& x, const Tensor& weight, float eps) {
     float scale = 1.0f / std::sqrt(tmp / static_cast<float>(dim) + eps);
 
     Tensor y({dim}, 0.0f);
-    float* y_data = y.Data();
+    float* y_data = y.data.data();
     for (size_t i = 0; i < dim; i++) {
         y_data[i] = x_data[i] * scale * weight_data[i];
     }
@@ -170,13 +170,13 @@ Tensor Softmax(const Tensor& x) {
         throw std::runtime_error("Ops::Softmax 要求输入为一维张量：预期维数: 1，实际维数: " +
                                  std::to_string(x.GetNumDims()) + "，x shape: " + ShapeToString(x) + "。");
     }
-    if (x.GetDataSize() == 0) {
+    if (x.size() == 0) {
         throw std::runtime_error("Ops::Softmax 要求输入非空：预期元素数: > 0，实际元素数: " +
-                                 std::to_string(x.GetDataSize()) + "，x shape: " + ShapeToString(x) + "。");
+                                 std::to_string(x.size()) + "，x shape: " + ShapeToString(x) + "。");
     }
 
     size_t n = x.GetShape()[0];
-    const float* x_data = x.Data();
+    const float* x_data = x.data.data();
     float max = x_data[0];
 
     for (size_t i = 0; i < n; ++i) {
@@ -186,7 +186,7 @@ Tensor Softmax(const Tensor& x) {
     float sum = 0.0f;
 
     Tensor y({n}, 0.0f);
-    float* y_data = y.Data();
+    float* y_data = y.data.data();
 
     for (size_t i = 0; i < n; ++i) {
         y_data[i] = std::exp(x_data[i] - max);
@@ -206,10 +206,10 @@ Tensor SwiGlu(const Tensor& gate, const Tensor& up) {
                                  "，up shape: " + ShapeToString(up) + "。");
     }
     Tensor y(gate.GetShape(), 0.0f);
-    const float* gate_data = gate.Data();
-    const float* up_data = up.Data();
-    float* y_data = y.Data();
-    for (size_t i = 0; i < gate.GetDataSize(); i++) {
+    const float* gate_data = gate.data.data();
+    const float* up_data = up.data.data();
+    float* y_data = y.data.data();
+    for (size_t i = 0; i < gate.size(); i++) {
         float val = gate_data[i];
         float sigmoid = 1.0f / (1.0f + std::exp(-val));
         y_data[i] = sigmoid * val * up_data[i];
@@ -220,7 +220,7 @@ Tensor SwiGlu(const Tensor& gate, const Tensor& up) {
 void NormalRope(Tensor& x, size_t pos, float theta) {
     size_t heads = x.GetShape()[0];
     size_t head_dim = x.GetShape()[1];
-    float* x_data = x.Data();
+    float* x_data = x.data.data();
     for (size_t i = 0; i < heads; ++i) {
         float* head_data = x_data + i * head_dim;
         for (size_t j = 0; j < head_dim; j += 2) {
@@ -242,7 +242,7 @@ void NormalNeoX(Tensor& x, size_t pos, float theta) {
     size_t heads = x.GetShape()[0];
     size_t head_dim = x.GetShape()[1];
     size_t half_dim = head_dim / 2;
-    float* x_data = x.Data();
+    float* x_data = x.data.data();
     for (size_t i = 0; i < heads; ++i) {
         float* head_data = x_data + i * head_dim;
         for (size_t j = 0; j < half_dim; ++j) {

@@ -12,9 +12,10 @@ mini_llama 是一个面向 Llama 大语言模型推理的 C++17 学习与实践�
 - **前缀树**：`RadixTree` 支持 token 序列插入、压缩节点分裂、最长公共前缀长度查询、去重计数和清空，用于前缀缓存索引；不持有 KV cache 数据。
 - **批处理与上下文**：`Batch` 构造单 token 或序列批次，通过 `GetPos(int i)` 按起始位置与下标计算连续位置；`Context` 绑定模型、按配置初始化独立 KV cache 与请求状态。
 - **请求跟踪**：`RequestContext` 提供 trace ID、请求计时、事件记录、错误状态与只读摘要/事件格式化。
+- **采样器**：`Sampler::Sample` 根据 `SamplingParams` 选择贪心、全词表温度或 Top-k 采样，支持固定种子复现，并校验 logits 与参数。
 - **单元测试**：使用 GoogleTest 和 CTest 验证张量访问、算子数值结果、形状约束、分词器、KV cache、前缀树、批次构造、上下文初始化与请求跟踪；分词器测试自行生成小词表，无需下载模型。
 
-张量、基础算子、分词器与前缀树已接入静态库；KV cache、batch、Context 与 RequestContext 当前通过独立测试目标编译验证，尚未接入模型权重加载和完整文本生成流程。项目目录与重要文件见 [GUIDE.md](GUIDE.md)；学习文档和上游参考源码保存在本地，不提交到 Git。移植代码的许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+张量、基础算子、分词器、前缀树与采样器已接入静态库；KV cache、batch、Context 与 RequestContext 当前通过独立测试目标编译验证，尚未接入模型权重加载和完整文本生成流程。项目目录与重要文件见 [GUIDE.md](GUIDE.md)；学习文档和上游参考源码保存在本地，不提交到 Git。移植代码的许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 提交代码请遵循 [项目提交规范](CONTRIBUTING.md)。
 
@@ -58,7 +59,9 @@ ctest --test-dir build/windows -C Debug -L "^(batch|context|request_context)$" -
 
 Linux / WSL 将构建目录改为 `build/linux`。`RequestContext` 的各阶段汇总统计字段尚无公开更新接口，目前只验收其初始零值，事件中的非零耗时和 token 数单独验证。
 
-前向测试使用固定的内存 F32 权重，无需模型加载器或外部模型文件。已移植单 token 输出与 KV 写入、连续位置、非法输入，以及批次与逐 token 计算等价、历史更新和空批次拒绝测试；尚未实现的采样器与量化测试暂不接入。单独运行前向测试：
+采样器测试使用 `ctest --test-dir build/linux -L sampler --output-on-failure`。`temperature < 1e-6` 或 `top_k=1` 时贪心，`top_k=0` 时禁用 Top-k，`top_k>1` 时仅从前 k 个候选项中按温度采样。`seed` 仅在构造 `Sampler` 时使用，0 表示使用随机设备；温度采样会推进实例的随机状态，贪心采样不消耗随机数。
+
+前向测试使用固定的内存 F32 权重，无需模型加载器或外部模型文件。已移植单 token 输出与 KV 写入、连续位置、非法输入，以及批次与逐 token 计算等价、历史更新和空批次拒绝测试；尚未实现的量化测试暂不接入。单独运行前向测试：
 
 ```powershell
 ctest --test-dir build/windows -C Debug -L forward --output-on-failure

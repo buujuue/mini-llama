@@ -37,6 +37,9 @@ target_link_libraries(tensor_tests PRIVATE mini_llama GTest::gtest_main)
 add_executable(ops_tests test_ops.cpp)
 target_link_libraries(ops_tests PRIVATE mini_llama GTest::gtest_main)
 
+add_executable(sampler_tests test_sampler.cpp)
+target_link_libraries(sampler_tests PRIVATE mini_llama GTest::gtest_main)
+
 add_executable(tokenizer_tests test_tokenizer.cpp)
 target_link_libraries(tokenizer_tests PRIVATE mini_llama GTest::gtest_main)
 
@@ -66,6 +69,7 @@ target_link_libraries(forward_tests PRIVATE mini_llama GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(tensor_tests PROPERTIES TIMEOUT 10)
 gtest_discover_tests(ops_tests PROPERTIES TIMEOUT 10 LABELS ops)
+gtest_discover_tests(sampler_tests PROPERTIES TIMEOUT 10 LABELS sampler)
 gtest_discover_tests(tokenizer_tests PROPERTIES TIMEOUT 10 LABELS tokenizer)
 gtest_discover_tests(kv_cache_tests PROPERTIES TIMEOUT 10 LABELS kv_cache)
 gtest_discover_tests(radix_tree_tests PROPERTIES TIMEOUT 10 LABELS radix_tree)

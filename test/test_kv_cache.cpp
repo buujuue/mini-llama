@@ -50,8 +50,8 @@ TEST(KvCacheTest, WriteStoresKeyAndValueByLayerPositionAndHead) {
     Tensor v({2, 3}, 0.0f);
 
     for (int i = 0; i < 6; ++i) {
-        k.Data()[i] = static_cast<float>(i + 1);
-        v.Data()[i] = static_cast<float>(100 + i);
+        k.data[i] = static_cast<float>(i + 1);
+        v.data[i] = static_cast<float>(100 + i);
     }
 
     cache.Write(1, 2, k, v);
@@ -80,10 +80,10 @@ TEST(KvCacheTest, WritePreservesOtherPositions) {
     KvCache cache(1, 3, 1, 2);
     Tensor k({1, 2}, 0.0f);
     Tensor v({1, 2}, 0.0f);
-    k.Data()[0] = 7.0f;
-    k.Data()[1] = 8.0f;
-    v.Data()[0] = 9.0f;
-    v.Data()[1] = 10.0f;
+    k.data[0] = 7.0f;
+    k.data[1] = 8.0f;
+    v.data[0] = 9.0f;
+    v.data[1] = 10.0f;
 
     cache.Write(0, 1, k, v);
 

@@ -78,8 +78,8 @@ void KvCache::Write(size_t layer, size_t pos, const Tensor& k, const Tensor& v){
     for (size_t h = 0; h < kv_heads_num; ++h) {
         size_t offset = h * head_stride;
 
-        std::memcpy(&keys_.Data()[base + offset], &k.Data()[offset], head_dim * sizeof(float));
-        std::memcpy(&valves_.Data()[base + offset], &v.Data()[offset], head_dim * sizeof(float));
+        std::memcpy(&keys_.data[base + offset], &k.data[offset], head_dim * sizeof(float));
+        std::memcpy(&valves_.data[base + offset], &v.data[offset], head_dim * sizeof(float));
     }
 }
 
@@ -101,7 +101,7 @@ const float* KvCache::KeyPtr(int layer, int pos, int kv_head) const {
     const size_t layer_stride = shape[1] * shape[2] * shape[3];
     const size_t pos_stride = shape[2] * shape[3];
     const size_t head_stride = shape[3];
-    return keys_.Data() + static_cast<size_t>(layer) * layer_stride
+    return keys_.data.data() + static_cast<size_t>(layer) * layer_stride
         + static_cast<size_t>(pos) * pos_stride + static_cast<size_t>(kv_head) * head_stride;
 }
 
@@ -123,6 +123,6 @@ const float* KvCache::ValuePtr(int layer, int pos, int kv_head) const {
     const size_t layer_stride = shape[1] * shape[2] * shape[3];
     const size_t pos_stride = shape[2] * shape[3];
     const size_t head_stride = shape[3];
-    return valves_.Data() + static_cast<size_t>(layer) * layer_stride
+    return valves_.data.data() + static_cast<size_t>(layer) * layer_stride
         + static_cast<size_t>(pos) * pos_stride + static_cast<size_t>(kv_head) * head_stride;
 }

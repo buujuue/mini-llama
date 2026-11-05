@@ -1,20 +1,5 @@
-// Copyright (c) 2026 yus3nable
-// SPDX-License-Identifier: MIT
-
 #include "forward.h"
 
-#include <cmath>
-#include <cstddef>
-#include <cstring>
-#include <limits>
-#include <stdexcept>
-#include <string>
-#include "batch.h"
-#include "context.h"
-#include "model.h"
-#include "ops.h"
-#include "tensor.h"
-#include "tool.h"
 
 static void CheckForwardInputs(const Context& ctx, const Model& model, int token) {
     const ModelConfig& c = model.config;
@@ -45,10 +30,10 @@ static void CheckForwardInputs(const Context& ctx, const Model& model, int token
             + std::to_string(c.vocab_size) + "，dim: " + std::to_string(c.dim) + "。");
     }
     const size_t expected_size = c.vocab_size * c.dim;
-    if (model.token_embedding.GetDataSize() < expected_size) {
+    if (model.token_embedding.size() < expected_size) {
         throw std::runtime_error(
             "CheckForwardInputs token embedding 数据不足：实际元素数: "
-            + std::to_string(model.token_embedding.GetDataSize())
+            + std::to_string(model.token_embedding.size())
             + "，至少需要 vocab_size * dim: " + std::to_string(expected_size) + "。");
     }
 }
@@ -69,9 +54,9 @@ static void ComputeHead(const Tensor& q, size_t h, size_t pos, size_t layer,
         const float* k_ptr = kv_cache.KeyPtr(layer, t, kv_head);
         float dot = 0.0f;
         for (size_t d = 0; d < head_dim; ++d) {
-            dot += q.Data()[h * head_dim + d] * k_ptr[d];
+            dot += q.data[h * head_dim + d] * k_ptr[d];
         }
-        scores.Data()[t] = dot * scale;
+        scores.data[t] = dot * scale;
     }
 
     const Tensor probs = Softmax(scores);
@@ -80,9 +65,9 @@ static void ComputeHead(const Tensor& q, size_t h, size_t pos, size_t layer,
         float val = 0.0f;
         for (size_t t = 0; t <= pos; ++t) {
             const float* v_ptr = kv_cache.ValuePtr(layer, t, kv_head);
-            val += probs.Data()[t] * v_ptr[d];
+            val += probs.data[t] * v_ptr[d];
         }
-        attn_out.Data()[h * head_dim + d] = val;
+        attn_out.data[h * head_dim + d] = val;
     }
 }
 
@@ -107,7 +92,7 @@ static Tensor AttentionForward(const Model& model, const Tensor& q, const Tensor
 static Tensor EmbedToken(const Model& model, int token_id) {
     size_t dim = model.config.dim;
     Tensor x({dim}, 0.0f);
-    std::memcpy(x.Data(), model.token_embedding.Data() + token_id * dim, dim * sizeof(float));
+    std::memcpy(x.data.data(), model.token_embedding.data.data() + token_id * dim, dim * sizeof(float));
     return x;
 }
 
@@ -154,27 +139,27 @@ static Tensor ForwardAdd(const Model& model, const Tensor& a, const Tensor& b,
 
     b.AssertShape(a.GetShape(), "ForwardAdd");
     Tensor y = a;
-    for (size_t i = 0; i < a.GetDataSize(); ++i) {
-        y.Data()[i] = a.Data()[i] + b.Data()[i];
+    for (size_t i = 0; i < a.size(); ++i) {
+        y.data[i] = a.data[i] + b.data[i];
     }
     return y;
 }
 
 static void AddOptionalBias(Tensor& x, const Tensor& bias, const char* caller) {
-    if (bias.GetDataSize() == 0) {
+    if (bias.size() == 0) {
         return ;
     }
     if (x.GetNumDims() != 1 || bias.GetNumDims() != 1 || x.GetShape()[0] != bias.GetShape()[0]) {
         throw std::runtime_error(
             std::string(caller) + " AddOptionalBias 要求 x 和 bias 均为长度相同的一维张量："
             "x 维数: " + std::to_string(x.GetNumDims())
-            + "，x 元素数: " + std::to_string(x.GetDataSize())
+            + "，x 元素数: " + std::to_string(x.size())
             + "，bias 维数: " + std::to_string(bias.GetNumDims())
-            + "，bias 元素数: " + std::to_string(bias.GetDataSize()) + "。");
+            + "，bias 元素数: " + std::to_string(bias.size()) + "。");
     }
 
     for (int i = 0; i < x.GetShape()[0]; ++i) {
-        x.Data()[i] += bias.Data()[i];
+        x.data[i] += bias.data[i];
     }
 }
 

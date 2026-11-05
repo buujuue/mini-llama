@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 Tensor::Tensor(const std::vector<size_t>& shape, float fill) : shape_(shape) {
-    data_.resize(CheckNumel(shape), fill);
+    data.resize(CheckNumel(shape), fill);
 }
 
 void Tensor::AssertShape(const std::vector<size_t>& expected, const char* caller) const {
@@ -95,7 +95,7 @@ size_t Tensor::FlatIndex(const std::vector<size_t>& indices) const {
             + "，张量维数: " + std::to_string(shape_.size()) + "。");
     }
 
-    if (data_.empty()) {
+    if (data.empty()) {
         throw std::runtime_error("[Tensor] 空张量不能访问元素：shape: " + ShapeToString() + "。");
     }
 
@@ -121,48 +121,48 @@ void Tensor::CheckRunk(size_t expected, const std::string& caller) const {
 }
 
 float& Tensor::At(const std::vector<size_t>& indices){
-    return data_[FlatIndex(indices)];
+    return data[FlatIndex(indices)];
 }
 
 float Tensor::At(const std::vector<size_t>& indices) const {
-    return data_[FlatIndex(indices)];
+    return data[FlatIndex(indices)];
 }
 float& Tensor::At1D(size_t i){
     CheckRunk(1, "At1D");
     CheckAxisIndex(0, i, "At1D");
-    return data_[i];
+    return data[i];
 }
 
 float Tensor::At1D(size_t i) const {
     CheckRunk(1, "At1D");
     CheckAxisIndex(0, i, "At1D");
-    return data_[i];
+    return data[i];
 }
 
 float& Tensor::At2D(size_t i, size_t j) {
     CheckRunk(2, "At2D");
     CheckAxisIndex(0, i, "At2D");
     CheckAxisIndex(1, j, "At2D");
-    return data_[i * shape_[1] + j];
+    return data[i * shape_[1] + j];
 }
 
 float Tensor::At2D(size_t i, size_t j) const {
     CheckRunk(2, "At2D");
     CheckAxisIndex(0, i, "At2D");
     CheckAxisIndex(1, j, "At2D");
-    return data_[i * shape_[1] + j];
+    return data[i * shape_[1] + j];
 }
 
 float* Tensor::RowPtr(int row) {
     CheckRunk(2, "row_ptr");
     CheckAxisIndex(0, row, "row_ptr");
-    return data_.data() + static_cast<size_t>(row) * shape_[1];
+    return data.data() + static_cast<size_t>(row) * shape_[1];
 }
 
 const float* Tensor::RowPtr(int row) const {
     CheckRunk(2, "row_ptr");
     CheckAxisIndex(0, row, "row_ptr");
-    return data_.data() + static_cast<size_t>(row) * shape_[1];
+    return data.data() + static_cast<size_t>(row) * shape_[1];
 }
 
 float& Tensor::At3D(size_t i, size_t j, size_t k) {
@@ -170,7 +170,7 @@ float& Tensor::At3D(size_t i, size_t j, size_t k) {
     CheckAxisIndex(0, i, "At3D");
     CheckAxisIndex(1, j, "At3D");
     CheckAxisIndex(2, k, "At3D");
-    return data_[(i * shape_[1] + j) * shape_[2] + k];
+    return data[(i * shape_[1] + j) * shape_[2] + k];
 }
 
 float Tensor::At3D(size_t i, size_t j, size_t k) const {
@@ -178,7 +178,7 @@ float Tensor::At3D(size_t i, size_t j, size_t k) const {
     CheckAxisIndex(0, i, "At3D");
     CheckAxisIndex(1, j, "At3D");
     CheckAxisIndex(2, k, "At3D");
-    return data_[(i * shape_[1] + j) * shape_[2] + k];
+    return data[(i * shape_[1] + j) * shape_[2] + k];
 }
 
 float& Tensor::At4D(size_t i, size_t j, size_t k, size_t l) {
@@ -187,7 +187,7 @@ float& Tensor::At4D(size_t i, size_t j, size_t k, size_t l) {
     CheckAxisIndex(1, j, "At4D");
     CheckAxisIndex(2, k, "At4D");
     CheckAxisIndex(3, l, "At4D");
-    return data_[((i * shape_[1] + j) * shape_[2] + k) * shape_[3] + l];
+    return data[((i * shape_[1] + j) * shape_[2] + k) * shape_[3] + l];
 }
 
 float Tensor::At4D(size_t i, size_t j, size_t k, size_t l) const {
@@ -196,5 +196,5 @@ float Tensor::At4D(size_t i, size_t j, size_t k, size_t l) const {
     CheckAxisIndex(1, j, "At4D");
     CheckAxisIndex(2, k, "At4D");
     CheckAxisIndex(3, l, "At4D");
-    return data_[((i * shape_[1] + j) * shape_[2] + k) * shape_[3] + l];
+    return data[((i * shape_[1] + j) * shape_[2] + k) * shape_[3] + l];
 }
