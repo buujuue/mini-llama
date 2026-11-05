@@ -82,7 +82,7 @@ TEST(SamplerTest, SampleTemperatureUsesWholeVocabAndReproducesWeightedDraws) {
     EXPECT_EQ(logits.data, original);
 }
 
-TEST(SamplerTest, SampleTopKMatchesDirectSamplingAndKeepsExactlyK) {
+TEST(SamplerTest, SampleTopKIsReproducibleAndKeepsExactlyK) {
     Tensor logits({5});
     logits.data = {0.0f, 5.0f, 1.0f, 5.0f, 5.0f};
     SamplingParams params;
@@ -90,12 +90,12 @@ TEST(SamplerTest, SampleTopKMatchesDirectSamplingAndKeepsExactlyK) {
     params.top_k = 2;
     params.seed = 321;
     Sampler sampler(params);
-    Sampler direct(params.seed);
+    Sampler repeated(params.seed);
     bool saw_first = false;
     bool saw_second = false;
     for (int i = 0; i < 100; ++i) {
         const int idx = sampler.Sample(logits, params);
-        EXPECT_EQ(idx, direct.SampleTopK(logits, params.temperature, params.top_k));
+        EXPECT_EQ(idx, repeated.Sample(logits, params));
         EXPECT_TRUE(idx == 1 || idx == 3) << idx;
         saw_first |= idx == 1;
         saw_second |= idx == 3;
@@ -163,13 +163,13 @@ TEST(SamplerTest, SampleRejectsNonfiniteLogitsInEveryMode) {
     }
 }
 
-// 适配上游 tests/gtest/test_sampler.cc 的 Top-k 测试，直接调用 SampleTopK。
+// 适配上游 tests/gtest/test_sampler.cc 的 Top-k 测试，通过统一 Sample 入口验证。
 TEST(SamplerTest, TopKOneIsGreedy) {
     Tensor logits({5});
     logits.data = {1.0f, 5.0f, 3.0f, 5.0f, 2.0f};
     Sampler sampler(42);
     for (int i = 0; i < 20; ++i) {
-        EXPECT_EQ(sampler.SampleTopK(logits, 100.0f, 1), 1);
+        EXPECT_EQ(sampler.Sample(logits, SamplingParams{100.0f, 1}), 1);
     }
 }
 
@@ -179,7 +179,7 @@ TEST(SamplerTest, TopKLimitsCandidatesAndPreservesLogits) {
     const auto original = logits.data;
     Sampler sampler(789);
     for (int i = 0; i < 100; ++i) {
-        const int idx = sampler.SampleTopK(logits, 1.0f, 2);
+        const int idx = sampler.Sample(logits, SamplingParams{1.0f, 2});
         EXPECT_TRUE(idx == 1 || idx == 3) << idx;
     }
     EXPECT_EQ(logits.data, original);
@@ -191,7 +191,7 @@ TEST(SamplerTest, ZeroAndTinyTemperaturesAreGreedy) {
     Sampler sampler(42);
     for (float temperature : {0.0f, 1e-7f}) {
         for (int i = 0; i < 20; ++i) {
-            EXPECT_EQ(sampler.SampleTopK(logits, temperature, 3), 2);
+            EXPECT_EQ(sampler.Sample(logits, SamplingParams{temperature, 3}), 2);
         }
     }
 }
@@ -202,12 +202,12 @@ TEST(SamplerTest, TopKLargerThanVocabIsClamped) {
     Sampler oversized(42);
     Sampler exact(42);
     for (int i = 0; i < 40; ++i) {
-        EXPECT_EQ(oversized.SampleTopK(logits, 1.0f, 100),
-                  exact.SampleTopK(logits, 1.0f, 4));
+        EXPECT_EQ(oversized.Sample(logits, SamplingParams{1.0f, 100}),
+                  exact.Sample(logits, SamplingParams{1.0f, 4}));
     }
 
     const Tensor single({1}, 3.0f);
-    EXPECT_EQ(oversized.SampleTopK(single, 1.0f, 100), 0);
+    EXPECT_EQ(oversized.Sample(single, SamplingParams{1.0f, 100}), 0);
 }
 
 TEST(SamplerTest, TiedLogitsKeepExactlyKCandidatesByIndex) {
@@ -217,7 +217,7 @@ TEST(SamplerTest, TiedLogitsKeepExactlyKCandidatesByIndex) {
     bool saw_first = false;
     bool saw_second = false;
     for (int i = 0; i < 100; ++i) {
-        const int idx = sampler.SampleTopK(logits, 1.0f, 2);
+        const int idx = sampler.Sample(logits, SamplingParams{1.0f, 2});
         EXPECT_TRUE(idx == 1 || idx == 3) << idx;
         saw_first |= idx == 1;
         saw_second |= idx == 3;
@@ -236,8 +236,8 @@ TEST(SamplerTest, FixedSeedReproducesTopKWithEitherConstructor) {
     Sampler first(params);
     Sampler second(params.seed);
     for (int i = 0; i < 40; ++i) {
-        EXPECT_EQ(first.SampleTopK(logits, 0.8f, 3),
-                  second.SampleTopK(logits, 0.8f, 3));
+        EXPECT_EQ(first.Sample(logits, SamplingParams{0.8f, 3}),
+                  second.Sample(logits, SamplingParams{0.8f, 3}));
     }
 }
 
@@ -251,7 +251,7 @@ TEST(SamplerTest, TemperatureControlsCandidateProbabilities) {
         Sampler sampler(123);
         int high_count = 0;
         for (int i = 0; i < draws; ++i) {
-            const int idx = sampler.SampleTopK(logits, temperature, 2);
+            const int idx = sampler.Sample(logits, SamplingParams{temperature, 2});
             ASSERT_TRUE(idx == 1 || idx == 3) << idx;
             high_count += idx == 3;
         }
@@ -265,16 +265,16 @@ TEST(SamplerTest, LargeLogitsUseStableSoftmax) {
     logits.data = {-10000.0f, 9999.0f, -10000.0f, 10000.0f};
     Sampler sampler(42);
     for (int i = 0; i < 40; ++i) {
-        EXPECT_EQ(sampler.SampleTopK(logits, 0.01f, 2), 3);
+        EXPECT_EQ(sampler.Sample(logits, SamplingParams{0.01f, 2}), 3);
     }
 }
 
-TEST(SamplerTest, RejectsNonPositiveTopK) {
+TEST(SamplerTest, RejectsNegativeTopK) {
     const Tensor logits({3});
     Sampler sampler(42);
-    for (int top_k : {0, -1, std::numeric_limits<int>::min()}) {
-        EXPECT_THROW(sampler.SampleTopK(logits, 1.0f, top_k), std::runtime_error);
-        EXPECT_THROW(sampler.SampleTopK(logits, 0.0f, top_k), std::runtime_error);
+    for (int top_k : {-1, std::numeric_limits<int>::min()}) {
+        EXPECT_THROW(sampler.Sample(logits, SamplingParams{1.0f, top_k}), std::runtime_error);
+        EXPECT_THROW(sampler.Sample(logits, SamplingParams{0.0f, top_k}), std::runtime_error);
     }
 }
 
@@ -284,16 +284,16 @@ TEST(SamplerTest, RejectsInvalidTemperatureBeforeGreedyShortcut) {
     for (float temperature : {-0.1f, std::numeric_limits<float>::quiet_NaN(),
                               std::numeric_limits<float>::infinity(),
                               -std::numeric_limits<float>::infinity()}) {
-        EXPECT_THROW(sampler.SampleTopK(logits, temperature, 1), std::runtime_error);
-        EXPECT_THROW(sampler.SampleTopK(logits, temperature, 2), std::runtime_error);
+        EXPECT_THROW(sampler.Sample(logits, SamplingParams{temperature, 1}), std::runtime_error);
+        EXPECT_THROW(sampler.Sample(logits, SamplingParams{temperature, 2}), std::runtime_error);
     }
 }
 
 TEST(SamplerTest, RejectsEmptyLogits) {
     const Tensor logits;
     Sampler sampler(42);
-    EXPECT_THROW(sampler.SampleTopK(logits, 1.0f, 2), std::runtime_error);
-    EXPECT_THROW(sampler.SampleTopK(logits, 0.0f, 1), std::runtime_error);
+    EXPECT_THROW(sampler.Sample(logits, SamplingParams{1.0f, 2}), std::runtime_error);
+    EXPECT_THROW(sampler.Sample(logits, SamplingParams{0.0f, 1}), std::runtime_error);
 }
 
 TEST(SamplerTest, RejectsNonfiniteLogitsBeforeFiltering) {
@@ -303,8 +303,8 @@ TEST(SamplerTest, RejectsNonfiniteLogitsBeforeFiltering) {
                         std::numeric_limits<float>::infinity(),
                         -std::numeric_limits<float>::infinity()}) {
         logits.data = {1.0f, value, 2.0f};
-        EXPECT_THROW(sampler.SampleTopK(logits, 1.0f, 2), std::runtime_error);
-        EXPECT_THROW(sampler.SampleTopK(logits, 0.0f, 1), std::runtime_error);
+        EXPECT_THROW(sampler.Sample(logits, SamplingParams{1.0f, 2}), std::runtime_error);
+        EXPECT_THROW(sampler.Sample(logits, SamplingParams{0.0f, 1}), std::runtime_error);
     }
 }
 

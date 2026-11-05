@@ -66,7 +66,6 @@ int Sampler::ArgMax(const std::vector<Candidate>& candidates) const {
 }
 
 int Sampler::SampleGreedy(const Tensor& logits) const{
-    CheckLogits(logits);
     return ArgMax(logits);
 }
 
@@ -88,8 +87,6 @@ void Sampler::CheckTopK(int top_k) const{
 }
 
 int Sampler::SampleTemperature(const Tensor& logits, float temperature){
-    CheckLogits(logits);
-    CheckTemperature(temperature);
     if (temperature < GreedyTemperature) {
         return SampleGreedy(logits);
     }
@@ -135,9 +132,6 @@ int Sampler::SampleTemperature(const std::vector<Candidate>& candidates,
 }
 
 int Sampler::SampleTopK(const Tensor& logits, float temperature, int top_k) {
-    CheckLogits(logits);
-    CheckTemperature(temperature);
-    CheckTopK(top_k);
     if (top_k == 0) {
         throw std::runtime_error(
             "[Sampler] SampleTopK 要求 top_k 为正整数：top_k: 0。");

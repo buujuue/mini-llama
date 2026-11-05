@@ -1,6 +1,3 @@
-// Copyright (c) 2026 yus3nable
-// SPDX-License-Identifier: MIT
-
 #pragma once
 
 #include <random>
@@ -25,11 +22,7 @@ public:
     explicit Sampler(unsigned int seed = 0);
     explicit Sampler(const SamplingParams& params);
 
-    // 温度低于 GreedyTemperature 或 top_k == 1 时贪心，否则按 top_k 选择采样方式。
     int Sample(const Tensor& logits, const SamplingParams& params);
-
-    // 仅在前 top_k 个候选项中进行温度采样；top_k 必须为正数。
-    int SampleTopK(const Tensor& logits, float temperature, int top_k);
 
 private:
 
@@ -43,6 +36,7 @@ private:
     int SampleGreedy(const Tensor& logits) const;
     int SampleTemperature(const Tensor& logits, float temperature);
     int SampleTemperature(const std::vector<Candidate>& candidates, float temperature);
+    int SampleTopK(const Tensor& logits, float temperature, int top_k);
 
     std::mt19937 rng_;
 };

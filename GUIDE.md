@@ -27,7 +27,7 @@ mini_llama/
 │   ├── batch.h                     # Batch：单 token/序列批次构造、GetToken/GetPos 按下标查询 token 与位置
 │   ├── context.h                   # Context：绑定模型，按配置初始化独立 KV cache 与请求状态
 │   ├── forward.h                   # CheckForwardInputs：单 token 前向计算的输入校验接口
-│   ├── sampler.h                   # Candidate、SamplingParams 与 Sampler：统一 Sample 入口、Top-k 及内部采样辅助函数
+│   ├── sampler.h                   # Candidate、SamplingParams 与 Sampler：仅公开 Sample 采样入口，Top-k 等辅助函数为私有
 │   ├── kv_cache.h                  # KvCache 写入与按层、位置、KV 头读取指针的接口
 │   ├── radix_tree.h                # RadixTree：token 压缩前缀树、去重计数与最长公共前缀查询
 │   ├── request_context.h           # RequestContext：请求元数据、事件记录与公开只读 trace 格式化接口
