@@ -40,6 +40,15 @@ target_link_libraries(ops_tests PRIVATE mini_llama GTest::gtest_main)
 add_executable(sampler_tests test_sampler.cpp)
 target_link_libraries(sampler_tests PRIVATE mini_llama GTest::gtest_main)
 
+add_executable(chat_tests test_chat.cpp)
+target_link_libraries(chat_tests PRIVATE mini_llama GTest::gtest_main)
+
+add_executable(prompt_builder_tests test_prompt_builder.cpp)
+target_link_libraries(prompt_builder_tests PRIVATE mini_llama GTest::gtest_main)
+
+add_executable(terminal_tests test_terminal.cpp)
+target_link_libraries(terminal_tests PRIVATE mini_llama GTest::gtest_main)
+
 add_executable(tokenizer_tests test_tokenizer.cpp)
 target_link_libraries(tokenizer_tests PRIVATE mini_llama GTest::gtest_main)
 
@@ -70,6 +79,9 @@ include(GoogleTest)
 gtest_discover_tests(tensor_tests PROPERTIES TIMEOUT 10)
 gtest_discover_tests(ops_tests PROPERTIES TIMEOUT 10 LABELS ops)
 gtest_discover_tests(sampler_tests PROPERTIES TIMEOUT 10 LABELS sampler)
+gtest_discover_tests(chat_tests PROPERTIES TIMEOUT 10 LABELS chat)
+gtest_discover_tests(prompt_builder_tests PROPERTIES TIMEOUT 10 LABELS prompt_builder)
+gtest_discover_tests(terminal_tests PROPERTIES TIMEOUT 10 LABELS terminal)
 gtest_discover_tests(tokenizer_tests PROPERTIES TIMEOUT 10 LABELS tokenizer)
 gtest_discover_tests(kv_cache_tests PROPERTIES TIMEOUT 10 LABELS kv_cache)
 gtest_discover_tests(radix_tree_tests PROPERTIES TIMEOUT 10 LABELS radix_tree)

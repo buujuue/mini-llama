@@ -1,5 +1,3 @@
-// Copyright (c) 2026 yus3nable
-// SPDX-License-Identifier: MIT
 
 #include <algorithm>
 #include <cctype>

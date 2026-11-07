@@ -1,6 +1,3 @@
-// Copyright (c) 2026 yus3nable
-// SPDX-License-Identifier: MIT
-
 #include "tensor.h"
 
 #include <cstddef>
