@@ -52,6 +52,9 @@ target_link_libraries(terminal_tests PRIVATE mini_llama GTest::gtest_main)
 add_executable(tokenizer_tests test_tokenizer.cpp)
 target_link_libraries(tokenizer_tests PRIVATE mini_llama GTest::gtest_main)
 
+add_executable(loader_tests test_loader.cpp)
+target_link_libraries(loader_tests PRIVATE mini_llama GTest::gtest_main)
+
 # KV cache 尚未加入静态库，仅在测试目标中编译现有实现。
 add_executable(kv_cache_tests test_kv_cache.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
 target_link_libraries(kv_cache_tests PRIVATE mini_llama GTest::gtest_main)
@@ -83,6 +86,8 @@ gtest_discover_tests(chat_tests PROPERTIES TIMEOUT 10 LABELS chat)
 gtest_discover_tests(prompt_builder_tests PROPERTIES TIMEOUT 10 LABELS prompt_builder)
 gtest_discover_tests(terminal_tests PROPERTIES TIMEOUT 10 LABELS terminal)
 gtest_discover_tests(tokenizer_tests PROPERTIES TIMEOUT 10 LABELS tokenizer)
+
+gtest_discover_tests(loader_tests PROPERTIES TIMEOUT 10 LABELS loader)
 gtest_discover_tests(kv_cache_tests PROPERTIES TIMEOUT 10 LABELS kv_cache)
 gtest_discover_tests(radix_tree_tests PROPERTIES TIMEOUT 10 LABELS radix_tree)
 gtest_discover_tests(batch_tests PROPERTIES TIMEOUT 10 LABELS batch)

@@ -15,6 +15,7 @@ add_library(mini_llama STATIC
     src/chat.cpp
     src/prompt_builder.cpp
     src/terminal.cpp
+    src/loader.cpp
     src/radix_tree.cpp
     src/tokenizer/ascii_tokenizer.cpp
     src/tokenizer/json_vocab_tokenizer.cpp
