@@ -1,6 +1,3 @@
-// Copyright (c) 2026 yus3nable
-// SPDX-License-Identifier: MIT
-
 #include "tokenizer.h"
 
 std::vector<int> AsciiTokenizer::Encode(const std::string& text) const {

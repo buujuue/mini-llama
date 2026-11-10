@@ -1,25 +1,52 @@
 #include "tensor.h"
 
+#include <cstddef>
 #include <limits>
 #include <stdexcept>
 
 Tensor::Tensor(const std::vector<size_t>& shape, float fill) : shape_(shape) {
-    data_.resize(CheckNumel(), fill);
+    data.resize(CheckNumel(shape), fill);
 }
 
-size_t Tensor::CheckNumel() {
+void Tensor::AssertShape(const std::vector<size_t>& expected, const char* caller) const {
+    if (shape_ != expected) {
+        const char* name = caller ? caller : "AssertShape";
+        throw std::runtime_error(
+            std::string("[Tensor] 调用 ") + name
+            + " 时形状不匹配：预期 shape: " + ShapeToString(expected)
+            + "，实际 shape: " + ShapeToString() + "。");
+    }
+}
+
+Tensor Tensor::Reshape(const std::vector<size_t>& new_shape, const char* caller) const {
+    const size_t new_numel = CheckNumel(new_shape);
+    const size_t numel = CheckNumel(shape_);
+    if (new_numel != numel) {
+        throw std::runtime_error(std::string("[Tensor] 调用 ") + caller
+            + " 时 Reshape 元素总数不匹配：原 shape: " + ShapeToString()
+            + "，原元素数: " + std::to_string(numel)
+            + "，目标 shape: " + ShapeToString(new_shape)
+            + "，目标元素数: " + std::to_string(new_numel) + "。");
+    }
+    Tensor x = *this;
+    x.shape_ = new_shape;
+    return x;
+
+}
+
+size_t Tensor::CheckNumel(const std::vector<size_t>& shape) {
     size_t count = 1;
-    for (size_t axis = 0; axis < shape_.size(); ++axis){
-        const size_t dim = shape_[axis];
+    for (size_t axis = 0; axis < shape.size(); ++axis){
+        const size_t dim = shape[axis];
         if (dim == 0) {
             throw std::runtime_error("[Tensor] shape 包含空维度：axis: " + std::to_string(axis)
-                + "，dim: 0，shape: " + ShapeToString() + "。");
+                + "，dim: 0，shape: " + ShapeToString(shape) + "。");
         }
         if (count > std::numeric_limits<size_t>::max() / dim){
             throw std::runtime_error("[Tensor] shape 元素总数溢出：axis: " + std::to_string(axis)
                 + "，已累计元素数: " + std::to_string(count)
                 + "，当前维度: " + std::to_string(dim)
-                + "，shape: " + ShapeToString() + "。");
+                + "，shape: " + ShapeToString(shape) + "。");
         }
         count *= dim;
     }
@@ -27,12 +54,16 @@ size_t Tensor::CheckNumel() {
 }
 
 std::string Tensor::ShapeToString() const {
+    return ShapeToString(shape_);
+}
+
+std::string Tensor::ShapeToString(const std::vector<size_t>& shape) {
     std::string s = "[";
-    for (size_t i = 0; i < shape_.size(); ++i) {
+    for (size_t i = 0; i < shape.size(); ++i) {
         if (i > 0) {
             s += ", ";
         }
-        s += std::to_string(shape_[i]);
+        s += std::to_string(shape[i]);
     }
     s += "]";
     return s;
@@ -61,7 +92,7 @@ size_t Tensor::FlatIndex(const std::vector<size_t>& indices) const {
             + "，张量维数: " + std::to_string(shape_.size()) + "。");
     }
 
-    if (data_.empty()) {
+    if (data.empty()) {
         throw std::runtime_error("[Tensor] 空张量不能访问元素：shape: " + ShapeToString() + "。");
     }
 
@@ -87,48 +118,48 @@ void Tensor::CheckRunk(size_t expected, const std::string& caller) const {
 }
 
 float& Tensor::At(const std::vector<size_t>& indices){
-    return data_[FlatIndex(indices)];
+    return data[FlatIndex(indices)];
 }
 
 float Tensor::At(const std::vector<size_t>& indices) const {
-    return data_[FlatIndex(indices)];
+    return data[FlatIndex(indices)];
 }
 float& Tensor::At1D(size_t i){
     CheckRunk(1, "At1D");
     CheckAxisIndex(0, i, "At1D");
-    return data_[i];
+    return data[i];
 }
 
 float Tensor::At1D(size_t i) const {
     CheckRunk(1, "At1D");
     CheckAxisIndex(0, i, "At1D");
-    return data_[i];
+    return data[i];
 }
 
 float& Tensor::At2D(size_t i, size_t j) {
     CheckRunk(2, "At2D");
     CheckAxisIndex(0, i, "At2D");
     CheckAxisIndex(1, j, "At2D");
-    return data_[i * shape_[1] + j];
+    return data[i * shape_[1] + j];
 }
 
 float Tensor::At2D(size_t i, size_t j) const {
     CheckRunk(2, "At2D");
     CheckAxisIndex(0, i, "At2D");
     CheckAxisIndex(1, j, "At2D");
-    return data_[i * shape_[1] + j];
+    return data[i * shape_[1] + j];
 }
 
 float* Tensor::RowPtr(int row) {
     CheckRunk(2, "row_ptr");
     CheckAxisIndex(0, row, "row_ptr");
-    return data_.data() + static_cast<size_t>(row) * shape_[1];
+    return data.data() + static_cast<size_t>(row) * shape_[1];
 }
 
 const float* Tensor::RowPtr(int row) const {
     CheckRunk(2, "row_ptr");
     CheckAxisIndex(0, row, "row_ptr");
-    return data_.data() + static_cast<size_t>(row) * shape_[1];
+    return data.data() + static_cast<size_t>(row) * shape_[1];
 }
 
 float& Tensor::At3D(size_t i, size_t j, size_t k) {
@@ -136,7 +167,7 @@ float& Tensor::At3D(size_t i, size_t j, size_t k) {
     CheckAxisIndex(0, i, "At3D");
     CheckAxisIndex(1, j, "At3D");
     CheckAxisIndex(2, k, "At3D");
-    return data_[(i * shape_[1] + j) * shape_[2] + k];
+    return data[(i * shape_[1] + j) * shape_[2] + k];
 }
 
 float Tensor::At3D(size_t i, size_t j, size_t k) const {
@@ -144,7 +175,7 @@ float Tensor::At3D(size_t i, size_t j, size_t k) const {
     CheckAxisIndex(0, i, "At3D");
     CheckAxisIndex(1, j, "At3D");
     CheckAxisIndex(2, k, "At3D");
-    return data_[(i * shape_[1] + j) * shape_[2] + k];
+    return data[(i * shape_[1] + j) * shape_[2] + k];
 }
 
 float& Tensor::At4D(size_t i, size_t j, size_t k, size_t l) {
@@ -153,7 +184,7 @@ float& Tensor::At4D(size_t i, size_t j, size_t k, size_t l) {
     CheckAxisIndex(1, j, "At4D");
     CheckAxisIndex(2, k, "At4D");
     CheckAxisIndex(3, l, "At4D");
-    return data_[((i * shape_[1] + j) * shape_[2] + k) * shape_[3] + l];
+    return data[((i * shape_[1] + j) * shape_[2] + k) * shape_[3] + l];
 }
 
 float Tensor::At4D(size_t i, size_t j, size_t k, size_t l) const {
@@ -162,5 +193,5 @@ float Tensor::At4D(size_t i, size_t j, size_t k, size_t l) const {
     CheckAxisIndex(1, j, "At4D");
     CheckAxisIndex(2, k, "At4D");
     CheckAxisIndex(3, l, "At4D");
-    return data_[((i * shape_[1] + j) * shape_[2] + k) * shape_[3] + l];
+    return data[((i * shape_[1] + j) * shape_[2] + k) * shape_[3] + l];
 }

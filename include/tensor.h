@@ -1,3 +1,6 @@
+// Copyright (c) 2026 yus3nable
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <cstddef>
@@ -6,15 +9,19 @@
 
 class Tensor {
 public:
+    // 连续 F32 数据，可直接读写；元素数量应与形状保持一致。
+    std::vector<float> data;
+
     Tensor() = default;
     explicit Tensor(const std::vector<size_t>& shape, float fill = 0.0f);
 
     const std::vector<size_t>& GetShape() const noexcept { return shape_; }
     size_t GetNumDims() const noexcept { return shape_.size(); }
-    size_t GetDataSize() const noexcept { return data_.size(); }
+    size_t size() const noexcept { return data.size(); }
 
-    float* Data() noexcept { return data_.data(); }
-    const float* Data() const noexcept { return data_.data(); }
+    // 校验维数及各轴长度，形状不匹配时抛出 std::runtime_error。
+    void AssertShape(const std::vector<size_t>& expected, const char* caller) const;
+    Tensor Reshape(const std::vector<size_t>& new_shape, const char* caller) const;
 
     float& At(const std::vector<size_t>& indices);
     float At(const std::vector<size_t>& indices) const;
@@ -31,10 +38,10 @@ public:
 
 private:
     void CheckRunk(size_t expected, const std::string& caller) const;
-    size_t CheckNumel();
+    static size_t CheckNumel(const std::vector<size_t>& shape);
     std::string ShapeToString() const;
+    static std::string ShapeToString(const std::vector<size_t>& shape);
     void CheckAxisIndex(size_t axis, size_t index, const std::string& caller) const;
     size_t FlatIndex(const std::vector<size_t>& indices) const;
-    std::vector<float> data_;
     std::vector<size_t> shape_;
 };

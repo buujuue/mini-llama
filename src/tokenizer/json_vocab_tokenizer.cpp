@@ -1,5 +1,3 @@
-// Copyright (c) 2026 yus3nable
-// SPDX-License-Identifier: MIT
 
 #include <algorithm>
 #include <cctype>
@@ -12,9 +10,8 @@
 #include <string>
 #include "tokenizer.h"
 
-namespace {
 
-std::string JsonErrorContext(const std::string& content, std::size_t pos) {
+static std::string JsonErrorContext(const std::string& content, std::size_t pos) {
     const std::size_t offset = std::min(pos, content.size());
     const std::size_t start = offset > 16 ? offset - 16 : 0;
     const std::size_t end = start + std::min<std::size_t>(32, content.size() - start);
@@ -43,7 +40,6 @@ std::string JsonErrorContext(const std::string& content, std::size_t pos) {
            (end < content.size() ? "..." : "") + "\"";
 }
 
-}  // namespace
 
 JsonVocabTokenizor::JsonVocabTokenizor(const std::string& vocab_path) try {
     std::ifstream f(vocab_path);
