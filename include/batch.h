@@ -12,6 +12,7 @@ public:
     size_t size() const {return tokens_.size();}
     int GetToken(int i) const;
     size_t GetPos(int i) const;
+    std::vector<int> GetTokens() const {return tokens_;}
 private:
     std::vector<int> tokens_;
     size_t start_pos_;

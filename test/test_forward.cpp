@@ -9,112 +9,14 @@
 #include <stdexcept>
 #include <vector>
 
-// CheckForwardInputs 已改为内部函数，直接包含实现以保持功能代码不变。
+// 直接包含实现，以保留 CPU 注意力与 RoPE 辅助函数的数值测试。
+// 前向计算与输入校验均通过公开的 ForwardBatch 入口验证。
 // 本测试提供前向符号，静态库中的 forward.cpp 对象不会被重复链接。
 #include "../src/forward.cpp"
 
 namespace {
 
-class ForwardInputsTest : public ::testing::Test {
-protected:
-    Model model;
-
-    void SetUp() override {
-        model.config.vocab_size = 4;
-        model.config.dim = 2;
-        model.config.layers_num = 1;
-        model.config.max_seq_len = 3;
-        model.config.kv_heads_num = 1;
-        model.config.head_dim = 2;
-        model.loaded = true;
-        model.layers.resize(model.config.layers_num);
-        model.token_embedding = Tensor({4, 2}, 1.0f);
-    }
-};
-
-TEST_F(ForwardInputsTest, AcceptsBoundaryTokensAndPositionsWithoutChangingState) {
-    Context ctx(model);
-    EXPECT_NO_THROW(CheckForwardInputs(ctx, model, 0));
-
-    ctx.pos = model.config.max_seq_len - 1;
-    ctx.prefill_len = 2;
-    ctx.decode_len = 1;
-    ctx.token_history = {1, 2};
-    Tensor keys({1, 2}, 7.0f);
-    Tensor values({1, 2}, 9.0f);
-    ctx.kv_cache.Write(0, 2, keys, values);
-
-    EXPECT_NO_THROW(CheckForwardInputs(ctx, model, 3));
-
-    EXPECT_EQ(ctx.model_ptr, &model);
-    EXPECT_EQ(ctx.pos, 2u);
-    EXPECT_EQ(ctx.prefill_len, 2u);
-    EXPECT_EQ(ctx.decode_len, 1u);
-    EXPECT_EQ(ctx.token_history, (std::vector<int>{1, 2}));
-    EXPECT_FLOAT_EQ(ctx.kv_cache.KeyPtr(0, 2, 0)[0], 7.0f);
-    EXPECT_FLOAT_EQ(ctx.kv_cache.ValuePtr(0, 2, 0)[0], 9.0f);
-    EXPECT_FLOAT_EQ(model.token_embedding.At2D(3, 1), 1.0f);
-}
-
-TEST_F(ForwardInputsTest, RejectsUnloadedModel) {
-    const Context ctx(model);
-    model.loaded = false;
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::runtime_error);
-}
-
-TEST_F(ForwardInputsTest, RejectsTokensOutsideVocabulary) {
-    const Context ctx(model);
-    EXPECT_THROW(CheckForwardInputs(ctx, model, -1), std::out_of_range);
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 4), std::out_of_range);
-    EXPECT_THROW(CheckForwardInputs(ctx, model, std::numeric_limits<int>::max()),
-                 std::out_of_range);
-
-    model.config.vocab_size = 0;
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::out_of_range);
-}
-
-TEST_F(ForwardInputsTest, RejectsPositionsOutsideSequenceLimit) {
-    Context ctx(model);
-    ctx.pos = model.config.max_seq_len;
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::out_of_range);
-    ctx.pos = std::numeric_limits<size_t>::max();
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::out_of_range);
-
-    ctx.pos = 0;
-    model.config.max_seq_len = 0;
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::out_of_range);
-}
-
-TEST_F(ForwardInputsTest, RejectsTooFewOrTooManyLayers) {
-    const Context ctx(model);
-    model.layers.clear();
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::runtime_error);
-    model.layers.resize(2);
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::runtime_error);
-}
-
-TEST_F(ForwardInputsTest, RejectsEmptyOrUndersizedEmbedding) {
-    const Context ctx(model);
-    model.token_embedding = Tensor();
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::runtime_error);
-    model.token_embedding = Tensor({7});
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::runtime_error);
-}
-
-TEST_F(ForwardInputsTest, AcceptsEmbeddingLargerThanRequired) {
-    const Context ctx(model);
-    model.token_embedding = Tensor({5, 2});
-    EXPECT_NO_THROW(CheckForwardInputs(ctx, model, 3));
-}
-
-TEST_F(ForwardInputsTest, RejectsEmbeddingSizeOverflow) {
-    const Context ctx(model);
-    // 4 * (SIZE_MAX / 4 + 1) 会回绕为 0，必须在乘法之前拒绝。
-    model.config.dim = std::numeric_limits<size_t>::max() / 4 + 1;
-    EXPECT_THROW(CheckForwardInputs(ctx, model, 0), std::runtime_error);
-}
-
-// 固定且非零的 F32 权重，替代尚未实现的 LoadModel，测试不依赖外部模型文件。
+// 固定且非零的 F32 权重，测试不依赖外部模型文件。
 Tensor FixedWeights(const std::vector<size_t>& shape, int seed) {
     Tensor tensor(shape);
     for (size_t i = 0; i < tensor.size(); ++i) {
@@ -171,19 +73,123 @@ void ExpectSameLogits(const Tensor& actual, const Tensor& expected) {
     }
 }
 
-// 以下五项适配 tests/gtest/test_forward.cc；量化、采样器尚未实现，暂不移植。
-TEST(ForwardTest, ForwardTokenProducesLogitShape) {
-    const Model model = MakeForwardModel();
-    Context ctx(model);
-    ExpectFiniteLogits(ForwardToken(ctx, model, 1), model.config.vocab_size);
+void ExpectSameKvCache(const KvCache& actual, const KvCache& expected,
+                       const ModelConfig& config) {
+    for (size_t layer = 0; layer < config.layers_num; ++layer) {
+        for (size_t pos = 0; pos < config.max_seq_len; ++pos) {
+            for (size_t head = 0; head < config.kv_heads_num; ++head) {
+                for (size_t d = 0; d < config.head_dim; ++d) {
+                    EXPECT_FLOAT_EQ(actual.KeyPtr(layer, pos, head)[d],
+                                    expected.KeyPtr(layer, pos, head)[d]);
+                    EXPECT_FLOAT_EQ(actual.ValuePtr(layer, pos, head)[d],
+                                    expected.ValuePtr(layer, pos, head)[d]);
+                }
+            }
+        }
+    }
 }
 
-TEST(ForwardTest, ForwardTokenChangesKvCache) {
+class ForwardBatchInputsTest : public ::testing::Test {
+protected:
+    Model model = MakeForwardModel();
+};
+
+TEST_F(ForwardBatchInputsTest, AcceptsBoundaryTokensAndPositions) {
+    Context ctx(model);
+    ExpectFiniteLogits(ForwardBatch(ctx, model, Batch(0, 0)), model.config.vocab_size);
+    const float first_key = ctx.kv_cache.KeyPtr(0, 0, 0)[0];
+    const float first_value = ctx.kv_cache.ValuePtr(0, 0, 0)[0];
+    const int last_token = static_cast<int>(model.config.vocab_size - 1);
+    const size_t last_pos = model.config.max_seq_len - 1;
+    const float embedding_value = model.token_embedding.At2D(last_token, 0);
+    ctx.prefill_len = 2;
+    ctx.decode_len = 1;
+
+    ExpectFiniteLogits(ForwardBatch(ctx, model, Batch(last_token, last_pos)),
+                      model.config.vocab_size);
+
+    EXPECT_EQ(ctx.model_ptr, &model);
+    EXPECT_EQ(ctx.pos, last_pos);
+    EXPECT_EQ(ctx.prefill_len, 2u);
+    EXPECT_EQ(ctx.decode_len, 1u);
+    EXPECT_EQ(ctx.token_history, (std::vector<int>{0, last_token}));
+    EXPECT_FLOAT_EQ(ctx.kv_cache.KeyPtr(0, 0, 0)[0], first_key);
+    EXPECT_FLOAT_EQ(ctx.kv_cache.ValuePtr(0, 0, 0)[0], first_value);
+    EXPECT_FLOAT_EQ(model.token_embedding.At2D(last_token, 0), embedding_value);
+}
+
+TEST_F(ForwardBatchInputsTest, RejectsUnloadedModel) {
+    Context ctx(model);
+    model.loaded = false;
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0)), std::runtime_error);
+}
+
+TEST_F(ForwardBatchInputsTest, RejectsTokensOutsideVocabulary) {
+    Context ctx(model);
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(-1)), std::out_of_range);
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(static_cast<int>(model.config.vocab_size))),
+                 std::out_of_range);
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(std::numeric_limits<int>::max())),
+                 std::out_of_range);
+
+    model.config.vocab_size = 0;
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0)), std::out_of_range);
+}
+
+TEST_F(ForwardBatchInputsTest, RejectsPositionsOutsideSequenceLimit) {
+    Context ctx(model);
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0, model.config.max_seq_len)),
+                 std::out_of_range);
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0, std::numeric_limits<size_t>::max())),
+                 std::out_of_range);
+
+    model.config.max_seq_len = 0;
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0)), std::out_of_range);
+}
+
+TEST_F(ForwardBatchInputsTest, RejectsTooFewOrTooManyLayers) {
+    Context ctx(model);
+    model.layers.clear();
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0)), std::runtime_error);
+    model.layers.resize(model.config.layers_num + 1);
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0)), std::runtime_error);
+}
+
+TEST_F(ForwardBatchInputsTest, RejectsEmptyOrUndersizedEmbedding) {
+    Context ctx(model);
+    model.token_embedding = Tensor();
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0)), std::runtime_error);
+    model.token_embedding = Tensor({model.config.vocab_size * model.config.dim - 1});
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0)), std::runtime_error);
+}
+
+TEST_F(ForwardBatchInputsTest, AcceptsEmbeddingLargerThanRequired) {
+    Context ctx(model);
+    model.token_embedding = FixedWeights({model.config.vocab_size + 1, model.config.dim}, 1);
+    ExpectFiniteLogits(ForwardBatch(ctx, model, Batch(static_cast<int>(model.config.vocab_size - 1))),
+                      model.config.vocab_size);
+}
+
+TEST_F(ForwardBatchInputsTest, RejectsEmbeddingSizeOverflow) {
+    Context ctx(model);
+    // 必须在计算 vocab_size * dim 之前拒绝元素数溢出。
+    model.config.dim = std::numeric_limits<size_t>::max() / model.config.vocab_size + 1;
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(0)), std::runtime_error);
+}
+
+// 以下五项适配 tests/gtest/test_forward.cc，通过单 token 批次验证公开入口。
+TEST(ForwardTest, SingleTokenBatchProducesLogitShape) {
+    const Model model = MakeForwardModel();
+    Context ctx(model);
+    ExpectFiniteLogits(ForwardBatch(ctx, model, Batch(1)), model.config.vocab_size);
+}
+
+TEST(ForwardTest, SingleTokenBatchChangesKvCache) {
     const Model model = MakeForwardModel();
     Context ctx(model);
     EXPECT_FLOAT_EQ(ctx.kv_cache.KeyPtr(0, 0, 0)[0], 0.0f);
     EXPECT_FLOAT_EQ(ctx.kv_cache.ValuePtr(0, 0, 0)[0], 0.0f);
-    ForwardToken(ctx, model, 1);
+    ForwardBatch(ctx, model, Batch(1));
     for (int layer = 0; layer < 2; ++layer) {
         bool key_changed = false;
         bool value_changed = false;
@@ -202,30 +208,30 @@ TEST(ForwardTest, ForwardTokenChangesKvCache) {
     }
 }
 
-TEST(ForwardTest, PositionIncrementsCorrectly) {
+TEST(ForwardTest, BatchPositionUpdatesContext) {
     const Model model = MakeForwardModel();
     Context ctx(model);
-    ForwardToken(ctx, model, 1);
+    ForwardBatch(ctx, model, Batch(1, 0));
     const float first_key = ctx.kv_cache.KeyPtr(0, 0, 0)[0];
-    ctx.pos = 1;
-    ExpectFiniteLogits(ForwardToken(ctx, model, 2), model.config.vocab_size);
+    ExpectFiniteLogits(ForwardBatch(ctx, model, Batch(2, 1)), model.config.vocab_size);
     EXPECT_EQ(ctx.pos, 1u);
+    EXPECT_EQ(ctx.token_history, (std::vector<int>{1, 2}));
     EXPECT_FLOAT_EQ(ctx.kv_cache.KeyPtr(0, 0, 0)[0], first_key);
 }
 
 TEST(ForwardTest, ForwardRejectsInvalidToken) {
     const Model model = MakeForwardModel();
     Context ctx(model);
-    EXPECT_THROW(ForwardToken(ctx, model, -1), std::out_of_range);
-    EXPECT_THROW(ForwardToken(ctx, model, static_cast<int>(model.config.vocab_size)),
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(-1)), std::out_of_range);
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(static_cast<int>(model.config.vocab_size))),
                  std::out_of_range);
 }
 
 TEST(ForwardTest, ForwardRejectsInvalidPosition) {
     const Model model = MakeForwardModel();
     Context ctx(model);
-    ctx.pos = model.config.max_seq_len;
-    EXPECT_THROW(ForwardToken(ctx, model, 1), std::out_of_range);
+    EXPECT_THROW(ForwardBatch(ctx, model, Batch(1, model.config.max_seq_len)),
+                 std::out_of_range);
 }
 
 // 适配 tests/gtest/test_batch.cc 的五项 ForwardBatch 测试。
@@ -236,24 +242,27 @@ TEST(ForwardBatchTest, PrefillMatchesIndividual) {
     Context individual(model);
     Tensor expected;
     for (size_t i = 0; i < tokens.size(); ++i) {
-        individual.pos = i;
-        expected = ForwardToken(individual, model, tokens[i]);
+        expected = ForwardBatch(individual, model, Batch(tokens[i], i));
     }
     Context batched(model);
     const Tensor actual = ForwardBatch(batched, model, Batch(tokens, 0));
     ExpectFiniteLogits(actual, model.config.vocab_size);
     ExpectSameLogits(actual, expected);
+    EXPECT_EQ(batched.token_history, individual.token_history);
+    EXPECT_EQ(batched.pos, individual.pos);
+    ExpectSameKvCache(batched.kv_cache, individual.kv_cache, model.config);
 }
 
-TEST(ForwardBatchTest, SingleMatchesIndividual) {
+TEST(ForwardBatchTest, SingleTokenConstructorMatchesSequence) {
     const Model model = MakeForwardModel();
-    Context individual(model);
-    individual.pos = 3;
-    const Tensor expected = ForwardToken(individual, model, 2);
+    Context sequence(model);
+    const Tensor expected = ForwardBatch(sequence, model, Batch(std::vector<int>{2}, 3));
     Context batched(model);
     const Tensor actual = ForwardBatch(batched, model, Batch(2, 3));
     ExpectFiniteLogits(actual, model.config.vocab_size);
     ExpectSameLogits(actual, expected);
+    EXPECT_EQ(batched.token_history, sequence.token_history);
+    EXPECT_EQ(batched.pos, sequence.pos);
 }
 
 TEST(ForwardBatchTest, UpdatesContext) {
@@ -284,6 +293,51 @@ TEST(ForwardBatchTest, EmptyRejected) {
     EXPECT_EQ(ctx.pos, 0u);
 }
 
+TEST(ForwardBatchTest, AcceptsBatchEndingAtSequenceLimit) {
+    const Model model = MakeForwardModel();
+    Context ctx(model);
+    const std::vector<int> tokens{1, 2};
+    const Tensor logits = ForwardBatch(ctx, model,
+                                      Batch(tokens, model.config.max_seq_len - tokens.size()));
+    ExpectFiniteLogits(logits, model.config.vocab_size);
+    EXPECT_EQ(ctx.pos, model.config.max_seq_len - 1);
+    EXPECT_EQ(ctx.token_history, tokens);
+}
+
+TEST(ForwardBatchTest, RejectsBatchEndingPastSequenceLimit) {
+    const Model model = MakeForwardModel();
+    Context ctx(model);
+    ForwardBatch(ctx, model, Batch(1));
+    const Context before = ctx;
+    const std::vector<int> tokens{2, 3};
+    for (const size_t start_pos : {model.config.max_seq_len - 1,
+                                   std::numeric_limits<size_t>::max() - 1}) {
+        EXPECT_THROW(ForwardBatch(ctx, model, Batch(tokens, start_pos)), std::out_of_range);
+        EXPECT_EQ(ctx.pos, before.pos);
+        EXPECT_EQ(ctx.token_history, before.token_history);
+        ExpectSameKvCache(ctx.kv_cache, before.kv_cache, model.config);
+    }
+}
+
+TEST(ForwardBatchTest, RejectsInvalidTokenBeforeChangingState) {
+    const Model model = MakeForwardModel();
+    Context ctx(model);
+    ForwardBatch(ctx, model, Batch(1));
+    ctx.prefill_len = 1;
+    ctx.decode_len = 2;
+    const Context before = ctx;
+    for (const int invalid_token : {-1, static_cast<int>(model.config.vocab_size)}) {
+        const Batch batch(std::vector<int>{2, invalid_token}, 1);
+        EXPECT_THROW(ForwardBatch(ctx, model, batch), std::out_of_range);
+        EXPECT_EQ(ctx.model_ptr, before.model_ptr);
+        EXPECT_EQ(ctx.pos, before.pos);
+        EXPECT_EQ(ctx.prefill_len, before.prefill_len);
+        EXPECT_EQ(ctx.decode_len, before.decode_len);
+        EXPECT_EQ(ctx.token_history, before.token_history);
+        ExpectSameKvCache(ctx.kv_cache, before.kv_cache, model.config);
+    }
+}
+
 // 补充已实现的 CPU 注意力、GQA 配置和 RoPE 模式传递检查。
 TEST(ForwardTest, AttentionSharesKvHeadAndAveragesEqualScores) {
     const Model model = MakeForwardModel(2, 1);
@@ -307,10 +361,10 @@ TEST(ForwardTest, AttentionSharesKvHeadAndAveragesEqualScores) {
     EXPECT_FLOAT_EQ(cache.ValuePtr(0, 2, 0)[0], 0.0f);
 }
 
-TEST(ForwardTest, ForwardTokenSupportsGroupedQueryAttention) {
+TEST(ForwardTest, SingleTokenBatchSupportsGroupedQueryAttention) {
     const Model model = MakeForwardModel(2, 1);
     Context ctx(model);
-    ExpectFiniteLogits(ForwardToken(ctx, model, 1), model.config.vocab_size);
+    ExpectFiniteLogits(ForwardBatch(ctx, model, Batch(1)), model.config.vocab_size);
 }
 
 TEST(ForwardTest, ForwardRopeHonorsNeoXMode) {
