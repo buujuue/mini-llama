@@ -73,7 +73,7 @@ target_link_libraries(request_context_tests PRIVATE mini_llama GTest::gtest_main
 add_executable(context_tests test_context.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
 target_link_libraries(context_tests PRIVATE mini_llama GTest::gtest_main)
 
-# test_forward.cpp 直接包含 forward.cpp，以测试内部输入检查而不改动生产接口。
+# test_forward.cpp 直接包含 forward.cpp，保留内部注意力和 RoPE 的数值测试。
 add_executable(forward_tests test_forward.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp"
                "${PROJECT_SOURCE_DIR}/src/batch.cpp")
 target_link_libraries(forward_tests PRIVATE mini_llama GTest::gtest_main)

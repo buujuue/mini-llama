@@ -72,7 +72,7 @@ Linux / WSL 将构建目录改为 `build/linux`。`RequestContext` 的各阶段�
 
 终端测试使用 `ctest --test-dir build/linux -L terminal --output-on-failure`，包含 7 项课程移植测试和 7 项补充测试，自动重定向标准输入输出，无需人工交互。Windows 使用 `build/windows -C Debug`。`PrintUserPrompt` 和 `PrintAssistantPrefix` 输出后刷新，`PrintTokenText` 不换行、不刷新，调用方可用 `Flush` 刷新流式输出；`ReadLine` 保留行内空白，空行与 EOF 均返回空字符串，可用 `std::cin.eof()` 区分。统计中的耗时和吞吐保留两位小数，零耗时显示 `n/a`，统计和参数展示不改变 `std::cout` 的浮点格式。帮助列出 `/help`、`/clear`、`/stats`、`/params` 和 `/exit`，命令解析由调用方负责；当前尚无可运行的聊天主程序。
 
-前向测试使用固定的内存 F32 权重，无需模型加载器或外部模型文件。已移植单 token 输出与 KV 写入、连续位置、非法输入，以及批次与逐 token 计算等价、历史更新和空批次拒绝测试；尚未实现的量化测试暂不接入。单独运行前向测试：
+前向接口仅公开 `ForwardBatch`，单 token 通过 `Batch(token, pos)` 传入，`ForwardToken` 为内部函数。前向测试使用固定的内存 F32 权重，无需外部模型文件，覆盖批次入口校验、单 token 输出与 KV 写入、连续位置、批次与逐个单 token 批次计算等价、历史更新、位置溢出及非法批次在修改状态前被拒绝；尚未实现的量化测试暂不接入。单独运行前向测试：
 
 ```powershell
 ctest --test-dir build/windows -C Debug -L forward --output-on-failure

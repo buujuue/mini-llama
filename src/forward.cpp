@@ -1,40 +1,42 @@
 #include "forward.h"
+#include <cstddef>
 
 
-static void CheckForwardInputs(const Context& ctx, const Model& model, int token) {
-    const ModelConfig& c = model.config;
+static void CheckForwardBatch(const Context& ctx, const Model& model, const Batch& batch){
+    batch.check();
     if (!model.loaded) {
-        throw std::runtime_error("CheckForwardInputs 要求模型已加载：loaded: false。");
+        throw std::runtime_error("CheckForwardBatch 要求模型已加载：loaded: false。");
     }
-    if (token < 0 || static_cast<size_t>(token) >= c.vocab_size) {
+    const ModelConfig& config = model.config;
+
+    for (auto token : batch.GetTokens()) {
+        if (token < 0 || static_cast<size_t>(token) >= config.vocab_size) {
+            throw std::out_of_range("CheckForwardBatch token 越界：token: " + std::to_string(token) +
+                                    "，有效范围为 [0, " + std::to_string(config.vocab_size) + ")。");
+        }
+    }
+    size_t start_pos = batch.GetPos(0);
+    if (start_pos >= config.max_seq_len || batch.size() > config.max_seq_len - start_pos) {
         throw std::out_of_range(
-            "CheckForwardInputs token 越界：token: " + std::to_string(token)
-            + "，有效范围为 [0, " + std::to_string(c.vocab_size) + ")。");
+            "CheckForwardBatch 批次位置越界：start_pos: " + std::to_string(start_pos) +
+            "，batch_size: " + std::to_string(batch.size()) +
+            "，max_seq_len: " + std::to_string(config.max_seq_len) +
+            "，要求 start_pos + batch_size <= max_seq_len。");
     }
-    if (ctx.pos >= c.max_seq_len) {
-        throw std::out_of_range(
-            "CheckForwardInputs 位置越界：pos_: " + std::to_string(ctx.pos)
-            + "，有效范围为 [0, " + std::to_string(c.max_seq_len) + ")。");
-    }
-    if (model.layers.size() != c.layers_num) {
+    if (model.layers.size() != config.layers_num) {
         throw std::runtime_error(
-            "CheckForwardInputs 模型层数与配置不匹配：实际层数: "
-            + std::to_string(model.layers.size())
-            + "，配置 layers_num: " + std::to_string(c.layers_num) + "。");
+            "CheckForwardBatch 模型层数与配置不匹配：实际层数: " + std::to_string(model.layers.size()) +
+            "，配置 layers_num: " + std::to_string(config.layers_num) + "。");
     }
-    
-    if (c.vocab_size != 0
-        && c.dim > std::numeric_limits<size_t>::max() / c.vocab_size) {
-        throw std::runtime_error(
-            "CheckForwardInputs token embedding 元素数溢出：vocab_size: "
-            + std::to_string(c.vocab_size) + "，dim: " + std::to_string(c.dim) + "。");
+    if (config.vocab_size != 0 && config.dim > std::numeric_limits<size_t>::max() / config.vocab_size) {
+        throw std::runtime_error("CheckForwardBatch token embedding 元素数溢出：vocab_size: " +
+                                 std::to_string(config.vocab_size) + "，dim: " + std::to_string(config.dim) + "。");
     }
-    const size_t expected_size = c.vocab_size * c.dim;
+    const size_t expected_size = config.vocab_size * config.dim;
     if (model.token_embedding.size() < expected_size) {
         throw std::runtime_error(
-            "CheckForwardInputs token embedding 数据不足：实际元素数: "
-            + std::to_string(model.token_embedding.size())
-            + "，至少需要 vocab_size * dim: " + std::to_string(expected_size) + "。");
+            "CheckForwardBatch token embedding 数据不足：实际元素数: " + std::to_string(model.token_embedding.size()) +
+            "，至少需要 vocab_size * dim: " + std::to_string(expected_size) + "。");
     }
 }
 
@@ -266,8 +268,8 @@ static Tensor ComputeLogits(const Tensor& x, const Model& model, const ModelConf
     return logits_flat.Reshape({config.vocab_size}, "compute_logits");
 }
 
-Tensor ForwardToken(Context& ctx, const Model& model, int token) {
-    CheckForwardInputs(ctx, model, token);
+// 仅由 ForwardBatch 在整批输入校验通过后调用。
+static Tensor ForwardToken(Context& ctx, const Model& model, int token) {
     const ModelConfig& config = model.config;
     size_t layers_num = config.layers_num;
     const BackendKind backend_kind = ctx.backend_kind;
@@ -288,7 +290,7 @@ Tensor ForwardToken(Context& ctx, const Model& model, int token) {
 }
 
 Tensor ForwardBatch(Context& ctx, const Model model, const Batch& batch){
-    batch.check();
+    CheckForwardBatch(ctx, model, batch);
     Tensor logits;
     for (int i = 0; i < batch.size(); ++i){
         ctx.pos = batch.GetPos(i);

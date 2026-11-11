@@ -30,7 +30,7 @@ mini_llama/
 │   ├── prompt_builder.h            # PromptBuilder：纯文本、内置 Qwen2 与简化 Jinja 模板接口
 │   ├── terminal.h                  # Terminal：提示符、逐行输入、token 输出、帮助、统计与参数展示接口
 │   ├── context.h                   # Context：绑定模型，按配置初始化独立 KV cache 与请求状态
-│   ├── forward.h                   # CheckForwardInputs：单 token 前向计算的输入校验接口
+│   ├── forward.h                   # 仅公开 ForwardBatch 批次前向接口，单 token 使用 Batch 构造
 │   ├── sampler.h                   # Candidate、SamplingParams 与 Sampler：仅公开 Sample 采样入口，Top-k 等辅助函数为私有
 │   ├── kv_cache.h                  # KvCache 写入与按层、位置、KV 头读取指针的接口
 │   ├── radix_tree.h                # RadixTree：token 压缩前缀树、去重计数与最长公共前缀查询
@@ -39,7 +39,7 @@ mini_llama/
 ├── src/                           # 自己实现的源文件
 │   ├── tensor.cpp                  # Tensor 实现与形状、索引检查
 │   ├── ops.cpp                     # Matmul/Linear Naive 实现，以及 RmsNorm、Softmax、SwiGlu、Rope
-│   ├── forward.cpp                 # 前向输入检查、CPU 注意力与 SwiGlu/FFN 前向；层级/Token 前向待完成
+│   ├── forward.cpp                 # 批次输入检查、CPU 注意力与 SwiGlu/FFN 前向；ForwardToken 为内部函数
 │   ├── sampler.cpp                 # 已接入静态库的贪心、温度与 Top-k 采样；Sample 按参数分派并校验输入
 │   ├── chat.cpp                    # 已接入静态库的会话消息、token 历史、前缀缓存与累计统计；使用 ChatRole 枚举
 │   ├── prompt_builder.cpp          # 已接入静态库的提示词构建与课程简化 Jinja 解释器；角色名复用 RoleToString
@@ -67,7 +67,7 @@ mini_llama/
 │   ├── test_radix_tree.cpp         # RadixTree 的 8 项移植测试及 7 项补充测试，CTest 标签 radix_tree
 │   ├── test_batch.cpp              # 批次构造与下标查询的 4 项移植测试及 3 项补充测试，CTest 标签 batch
 │   ├── test_context.cpp            # Context 初始化与请求隔离的 2 项补充测试，CTest 标签 context
-│   ├── test_forward.cpp            # 21 项输入检查、CPU 单 token/批次前向、GQA 与 RoPE 测试；固定内存权重，CTest 标签 forward
+│   ├── test_forward.cpp            # 24 项批次入口校验、CPU 前向、GQA 与 RoPE 测试；覆盖位置溢出与失败前状态保护，CTest 标签 forward
 │   └── test_request_context.cpp    # 请求 trace 的 3 项适配移植测试及 4 项补充测试，CTest 标签 request_context
 ├── docs/                          # Git 忽略：本地文档
 │   ├── llama-inference-reading.md  # Llama 推理架构资料：中文优先、课程模块对应与阅读顺序
