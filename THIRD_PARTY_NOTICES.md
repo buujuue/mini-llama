@@ -1,10 +1,16 @@
 # 第三方许可
 
 本项目从 `mini-llama-cpp` 移植的 tokenizer、RadixTree、RequestContext、
-前向输入检查、采样器、会话、PromptBuilder、Terminal、模型描述解析器、加载失败处理及相关测试
+前向输入检查、采样器、会话、PromptBuilder、Terminal、模型描述解析器、加载失败处理、GGUF 值读取、GGUF 张量名称映射、GGUF 配置构建、GGUF 模型加载及相关测试
 遵循以下 MIT 许可。模型描述解析与加载失败处理涉及 `include/loader.h`、`src/loader.cpp` 和
 `test/test_loader.cpp`，原始实现位于课程参考源码的 `include/mini_llama/loader.h`、
 `src/loader.cc` 和 `tests/gtest/test_loader.cc`。
+`src/gguf.cpp` 中的值读取与类型名辅助函数适配自课程参考源码的 `src/gguf.cc`。
+`src/gguf_loader.cpp` 中的 `MapTensorName`、`BuildConfig`、`LoadGgufModel` 及权重形状校验适配自课程参考源码的 `src/gguf_loader.cc`。
+`test/test_gguf.cpp` 的基础场景移植自 `tests/gtest/test_gguf.cc`，
+`test/test_gguf_loader.cpp` 的加载失败场景适配自 `tests/gtest/test_gguf_loader.cc`；
+`test/gguf_fixture.h` 的字节构造辅助函数与微型 GGUF 布局适配自
+`tests/gtest/test_gguf.cc` 和 `scripts/make_test_gguf.py`。
 
 MIT License
 

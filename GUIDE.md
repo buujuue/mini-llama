@@ -25,6 +25,8 @@ mini_llama/
 │   ├── ops.h                       # 六个 F32 基础算子的接口、RoPE 辅助函数与形状约定
 │   ├── model.h                     # ModelConfig、LayerWeights 与 Model 的 F32 权重结构
 │   ├── loader.h                    # ModelDescriptor、枚举元信息、ParseDescriptor 与 LoadModel 接口
+│   ├── gguf.h                      # GGUF v3 元数据/张量信息、GgufReader 与 InspectGguf 接口
+│   ├── gguf_loader.h               # GGUF 张量名称映射、BuildConfig 配置构建与 LoadGgufModel 接口
 │   ├── batch.h                     # Batch：单 token/序列批次构造、GetToken/GetPos 按下标查询 token 与位置
 │   ├── chat.h                      # ChatRole、ChatMessage 与只读角色名转换；ChatSession 会话状态接口
 │   ├── prompt_builder.h            # PromptBuilder：纯文本、内置 Qwen2 与简化 Jinja 模板接口
@@ -45,6 +47,8 @@ mini_llama/
 │   ├── prompt_builder.cpp          # 已接入静态库的提示词构建与课程简化 Jinja 解释器；角色名复用 RoleToString
 │   ├── terminal.cpp                # 已接入静态库的终端输入输出；数值展示不修改 stdout 的浮点格式
 │   ├── loader.cpp                  # 模型描述解析、枚举映射与完整性检查；按 TensorId 读取全局/逐层 F32 权重，LoadFailure 返回并记录加载错误
+│   ├── gguf.cpp                    # GGUF v3 结构解析、张量大小/文件边界检查和信息打印；在 gguf_tests/gguf_loader_tests 中编译
+│   ├── gguf_loader.cpp             # GGUF 模型加载主流程、输出权重回退与全局/逐层形状校验；元数据读取、形状映射及权重解码仍为占位，在 gguf_loader_tests 中编译
 │   ├── batch.cpp                   # 批次 token 复制、保存起始位置并按下标计算连续位置；当前仅在 batch_tests 中编译
 │   ├── kv_cache.cpp                # KV cache 实现；当前在 kv_cache_tests/context_tests/forward_tests 中编译
 │   ├── radix_tree.cpp              # 已接入静态库的 RadixTree 实现，支持节点分裂、清空和移动
@@ -54,7 +58,7 @@ mini_llama/
 │       ├── json_vocab_tokenizer.cpp # JSON 词表加载、最长匹配编码、解码与 ASCII 回退工厂
 │       └── bpe_tokenizer.cpp       # BPE 加载、字节映射、合并、特殊 token、解码与工厂
 ├── test/                          # GoogleTest 单元测试
-│   ├── CMakeLists.txt              # 下载 GoogleTest、构建十四个测试程序、注册 CTest 并部署 MinGW 运行库
+│   ├── CMakeLists.txt              # 下载 GoogleTest、构建十六个测试程序、注册 CTest 并部署 MinGW 运行库
 │   ├── test_tensor.cpp             # Tensor 访问、AssertShape、Reshape 移植与边界测试
 │   ├── test_ops.cpp                # 六个已实现基础算子的数值、形状与边界验收，CTest 标签 ops
 │   ├── test_sampler.cpp            # Sample 分派、Top-k 范围、并列、种子、温度权重与输入边界的 21 项测试，CTest 标签 sampler
@@ -63,6 +67,10 @@ mini_llama/
 │   ├── test_terminal.cpp           # Terminal 的 7 项移植测试及 7 项补充测试，覆盖输出、刷新、逐行输入与 EOF，CTest 标签 terminal
 │   ├── test_tokenizer.cpp          # ASCII/JSON/BPE 与工厂测试，自建词表，CTest 标签 tokenizer
 │   ├── test_loader.cpp             # 自建两层 GQA 描述和权重，覆盖元信息、全局/逐层赋值、乱序偏移及加载失败返回与日志，CTest 标签 loader
+│   ├── gguf_fixture.h             # 自建 GGUF v3 字节夹具，独立临时目录与清理，不依赖模型文件
+│   ├── test_gguf.cpp              # 15 项移植测试及元数据、数组、存储大小、溢出与信息打印补充测试，CTest 标签 gguf
+│   ├── test_gguf_loader.cpp       # 全局/逐层/偏置名称映射与解析、配置失败返回测试，CTest 标签 gguf_loader
+│   ├── test_gguf_shapes.cpp       # 直接包含加载器实现，验证 GQA、必需权重与可选偏置的形状，CTest 标签 gguf_loader
 │   ├── test_kv_cache.cpp           # 移植课程 KV cache 的 6 项测试，CTest 标签 kv_cache
 │   ├── test_radix_tree.cpp         # RadixTree 的 8 项移植测试及 7 项补充测试，CTest 标签 radix_tree
 │   ├── test_batch.cpp              # 批次构造与下标查询的 4 项移植测试及 3 项补充测试，CTest 标签 batch
@@ -75,6 +83,8 @@ mini_llama/
 │   └── source/
 ├── references/                    # Git 忽略：上游参考源码
 │   ├── mini-llama-cpp/             # 课程配套推理引擎
+│   │   ├── build/mini-llama        # Linux/WSL Release CPU 命令行程序，支持 inspect-gguf
+│   │   └── models/chat/Qwen2-0.5B-Instruct-Q8_0.gguf # 本地 GGUF 示例模型
 │   └── llama.cpp/                 # 工业级实现参考
 ├── build/                         # Git 忽略：CMake/Ninja 构建产物
 │   ├── vscode-linux/               # VSCode WSL/Linux 构建与测试编译数据库
