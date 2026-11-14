@@ -17,9 +17,11 @@ add_library(mini_llama STATIC
     src/terminal.cpp
     src/loader.cpp
     src/radix_tree.cpp
+    src/gguf.cpp
     src/tokenizer/ascii_tokenizer.cpp
     src/tokenizer/json_vocab_tokenizer.cpp
     src/tokenizer/bpe_tokenizer.cpp
+    src/tokenizer/gguf_tokenizer.cpp
 )
 
 target_include_directories(mini_llama PUBLIC

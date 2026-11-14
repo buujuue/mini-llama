@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <cstdint>
 #include <string>
@@ -68,12 +70,15 @@ private:
 
 void InspectGguf(const GgufReader& reader);
 
-// 类型化元数据读取接口尚未移植，当前调用会抛出含“未完成”的 std::runtime_error。
+// 从小端 GGUF v2/v3 读取元数据，不读取或解码张量；缺失、类型不符或损坏时
+// 返回 false，保持 out 不变。整数数组要求 int32 元素。
 bool GgufGetMetadataInt(const std::string& path, const std::string& key, int64_t& out);
 bool GgufGetMetadataFloat(const std::string& path, const std::string& key, double& out);
 bool GgufGetMetadataString(const std::string& path, const std::string& key, std::string& out);
 bool GgufGetMetadataStringArray(const std::string& path, const std::string& key,
                                 std::vector<std::string>& out);
+bool GgufGetMetadataIntArray(const std::string& path, const std::string& key,
+                             std::vector<int32_t>& out);
 
 // 原始张量读取尚未移植，当前调用会抛出“未完成”异常。
 std::vector<uint8_t> ReadGgufTensorRaw(const std::string& path,

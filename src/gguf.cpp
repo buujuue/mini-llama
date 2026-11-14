@@ -144,7 +144,9 @@ static bool SkipValue(std::ifstream& f, uint32_t type) {
             if (!ReadU32(f, elem_type) || !ReadU64(f, len)) {
                 return false;
             }
-            if (len > MaxArrayElements) {
+            // GGUF 数组不允许嵌套；即使数组为空，也检查元素类型。
+            if (len > MaxArrayElements || elem_type > GgufTypeFloat64 ||
+                elem_type == GgufTypeArray) {
                 return false;
             }
             for (uint64_t i = 0; i < len; ++i) {
@@ -578,22 +580,233 @@ void InspectGguf(const GgufReader& reader) {
     }
 }
 
-// BuildConfig 的读取依赖占位，后续移植类型化元数据读取时替换。
-bool GgufGetMetadataInt(const std::string& path, const std::string& key, int64_t&) {
-    throw std::runtime_error("未完成：GgufGetMetadataInt，路径: " + path + "，键: " + key);
+
+static bool OpenAndFindMetadataKey(std::ifstream& f, const std::string& path,
+                                   const std::string& key, uint32_t& out_type) {
+    f.open(path, std::ios::binary);
+    char magic[4];
+    uint32_t version = 0;
+    uint64_t tensor_count = 0, metadata_count = 0;
+    if (!f.read(magic, 4) || std::memcmp(magic, "GGUF", 4) != 0 ||
+        !ReadU32(f, version) || (version != 2 && version != 3) ||
+        !ReadU64(f, tensor_count) || !ReadU64(f, metadata_count) ||
+        tensor_count > MaxTensorEntries || metadata_count > MaxMetadataEntries) {
+        return false;
+    }
+    std::streampos value_pos = std::streampos(-1);
+    std::unordered_set<std::string> keys;
+    for (uint64_t i = 0; i < metadata_count; ++i) {
+        std::string read_key;
+        uint32_t type = 0;
+        if (!ReadString(f, read_key) || !keys.insert(read_key).second ||
+            !ReadU32(f, type)) {
+            return false;
+        }
+        if (read_key == key) {
+            value_pos = f.tellg();
+            out_type = type;
+        }
+        if (!SkipValue(f, type)) {
+            return false;
+        }
+    }
+    if (value_pos == std::streampos(-1)) {
+        return false;
+    }
+    f.seekg(value_pos);
+    return f.good();
 }
 
-bool GgufGetMetadataFloat(const std::string& path, const std::string& key, double&) {
-    throw std::runtime_error("未完成：GgufGetMetadataFloat，路径: " + path + "，键: " + key);
+bool GgufGetMetadataInt(const std::string& path, const std::string& key,
+                        int64_t& out) {
+  std::ifstream f;
+  uint32_t type = 0;
+  if (!OpenAndFindMetadataKey(f, path, key, type)) {
+    return false;
+  }
+  switch (type) {
+    case GgufTypeUint8: {
+      uint8_t v = 0;
+      if (!ReadLe(f, v)) {
+        return false;
+      }
+      out = static_cast<int64_t>(v);
+      return true;
+    }
+    case GgufTypeInt8: {
+      int8_t v = 0;
+      if (!ReadLe(f, v)) {
+        return false;
+      }
+      out = static_cast<int64_t>(v);
+      return true;
+    }
+    case GgufTypeUint16: {
+      uint16_t v = 0;
+      if (!ReadLe(f, v)) {
+        return false;
+      }
+      out = static_cast<int64_t>(v);
+      return true;
+    }
+    case GgufTypeInt16: {
+      int16_t v = 0;
+      if (!ReadLe(f, v)) {
+        return false;
+      }
+      out = static_cast<int64_t>(v);
+      return true;
+    }
+    case GgufTypeUint32: {
+      uint32_t v = 0;
+      if (!ReadU32(f, v)) {
+        return false;
+      }
+      out = static_cast<int64_t>(v);
+      return true;
+    }
+    case GgufTypeInt32: {
+      int32_t v = 0;
+      if (!ReadLe(f, v)) {
+        return false;
+      }
+      out = static_cast<int64_t>(v);
+      return true;
+    }
+    case GgufTypeUint64: {
+      uint64_t v = 0;
+      if (!ReadU64(f, v) || v > static_cast<uint64_t>(std::numeric_limits<int64_t>::max())) {
+        return false;
+      }
+      out = static_cast<int64_t>(v);
+      return true;
+    }
+    case GgufTypeInt64: {
+      int64_t v = 0;
+      if (!ReadLe(f, v)) {
+        return false;
+      }
+      out = v;
+      return true;
+    }
+    default:
+      return false;
+  }
 }
 
-bool GgufGetMetadataString(const std::string& path, const std::string& key, std::string&) {
-    throw std::runtime_error("未完成：GgufGetMetadataString，路径: " + path + "，键: " + key);
+bool GgufGetMetadataFloat(const std::string& path, const std::string& key,
+                          double& out) {
+  std::ifstream f;
+  uint32_t type = 0;
+  if (!OpenAndFindMetadataKey(f, path, key, type)) {
+    return false;
+  }
+  switch (type) {
+    case GgufTypeFloat32: {
+      float v = 0.0f;
+      if (!ReadLe(f, v)) {
+        return false;
+      }
+      out = static_cast<double>(v);
+      return true;
+    }
+    case GgufTypeFloat64: {
+      double v = 0.0;
+      if (!ReadLe(f, v)) {
+        return false;
+      }
+      out = v;
+      return true;
+    }
+    default:
+      return false;
+  }
+}
+
+bool GgufGetMetadataString(const std::string& path, const std::string& key,
+                           std::string& out) {
+  std::ifstream f;
+  uint32_t type = 0;
+  if (!OpenAndFindMetadataKey(f, path, key, type)) {
+    return false;
+  }
+  if (type != GgufTypeString) {
+    return false;
+  }
+  std::string value;
+  if (!ReadString(f, value)) {
+    return false;
+  }
+  out = std::move(value);
+  return true;
 }
 
 bool GgufGetMetadataStringArray(const std::string& path, const std::string& key,
-                                std::vector<std::string>&) {
-    throw std::runtime_error("未完成：GgufGetMetadataStringArray，路径: " + path + "，键: " + key);
+                                std::vector<std::string>& out) {
+  std::ifstream f;
+  uint32_t type = 0;
+  if (!OpenAndFindMetadataKey(f, path, key, type)) {
+    return false;
+  }
+  if (type != GgufTypeArray) {
+    return false;
+  }
+  uint32_t elem_type = 0;
+  uint64_t len = 0;
+  if (!ReadU32(f, elem_type) || !ReadU64(f, len)) {
+    return false;
+  }
+  if (elem_type != GgufTypeString) {
+    return false;
+  }
+  if (len > MaxArrayElements) {
+    return false;
+  }
+  std::vector<std::string> values;
+  values.reserve(len);
+  for (uint64_t i = 0; i < len; ++i) {
+    std::string s;
+    if (!ReadString(f, s)) {
+      return false;
+    }
+    values.push_back(std::move(s));
+  }
+  out = std::move(values);
+  return true;
+}
+
+bool GgufGetMetadataIntArray(const std::string& path, const std::string& key,
+                             std::vector<int32_t>& out) {
+  std::ifstream f;
+  uint32_t type = 0;
+  if (!OpenAndFindMetadataKey(f, path, key, type)) {
+    return false;
+  }
+  if (type != GgufTypeArray) {
+    return false;
+  }
+  uint32_t elem_type = 0;
+  uint64_t len = 0;
+  if (!ReadU32(f, elem_type) || !ReadU64(f, len)) {
+    return false;
+  }
+  if (elem_type != GgufTypeInt32) {
+    return false;
+  }
+  if (len > MaxArrayElements) {
+    return false;
+  }
+  std::vector<int32_t> values;
+  values.reserve(len);
+  for (uint64_t i = 0; i < len; ++i) {
+    int32_t v = 0;
+    if (!ReadLe(f, v)) {
+      return false;
+    }
+    values.push_back(v);
+  }
+  out = std::move(values);
+  return true;
 }
 
 std::vector<uint8_t> ReadGgufTensorRaw(const std::string& path,

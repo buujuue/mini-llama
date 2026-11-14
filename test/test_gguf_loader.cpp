@@ -73,7 +73,7 @@ TEST_F(GgufLoaderTest, InvalidFile) {
 
 TEST_F(GgufLoaderTest, ConfigFailureReturned) {
     // 上游的 RejectsIncompleteConfig 场景：先证明解析成功，再检查配置异常被返回。
-    // 类型化元数据读取仍为占位，当前不能断言配置完整性校验或成功加载。
+    // 类型化读取已接入；此夹具缺少模型维度，配置完整性检查应拒绝加载。
     const std::string path = Write(TinyGguf());
     GgufReader reader;
     ASSERT_TRUE(reader.load(path)) << reader.error;

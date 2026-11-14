@@ -5,12 +5,19 @@
 遵循以下 MIT 许可。模型描述解析与加载失败处理涉及 `include/loader.h`、`src/loader.cpp` 和
 `test/test_loader.cpp`，原始实现位于课程参考源码的 `include/mini_llama/loader.h`、
 `src/loader.cc` 和 `tests/gtest/test_loader.cc`。
-`src/gguf.cpp` 中的值读取与类型名辅助函数适配自课程参考源码的 `src/gguf.cc`。
+`src/gguf.cpp` 中的值读取、类型名及类型化元数据读取辅助函数适配自课程参考源码的 `src/gguf.cc`。
 `src/gguf_loader.cpp` 中的 `MapTensorName`、`BuildConfig`、`LoadGgufModel` 及权重形状校验适配自课程参考源码的 `src/gguf_loader.cc`。
 `test/test_gguf.cpp` 的基础场景移植自 `tests/gtest/test_gguf.cc`，
 `test/test_gguf_loader.cpp` 的加载失败场景适配自 `tests/gtest/test_gguf_loader.cc`；
 `test/gguf_fixture.h` 的字节构造辅助函数与微型 GGUF 布局适配自
 `tests/gtest/test_gguf.cc` 和 `scripts/make_test_gguf.py`。
+`scripts/export_gguf_tokenizer.py` 移植自课程参考源码的同名脚本，
+增加 GGUF 文件头、类型、截断和重复词表检查，输出格式保持兼容。
+
+`include/gguf_tokenizer.h` 和 `src/tokenizer/gguf_tokenizer.cpp` 适配自课程的
+`include/mini_llama/gguf_tokenizer.h` 和 `src/gguf_tokenizer.cc`；
+`test/test_gguf_tokenizer.cpp` 的基础场景及微型词表适配自
+`tests/gtest/test_gguf_tokenizer.cc` 和 `tests/gguf_tokenizer_fixture.h`。
 
 MIT License
 

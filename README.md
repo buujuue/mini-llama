@@ -68,7 +68,7 @@ Linux / WSL 将构建目录改为 `build/linux`。`RequestContext` 的各阶段�
 
 提示词测试使用 `ctest --test-dir build/linux -L prompt_builder --output-on-failure`。默认按 `System: / User: / Assistant: ` 格式输出历史，并追加 `Assistant:`；`SetChatTemplate("qwen2")` 使用 ChatML 格式，在历史中没有 system 消息时注入默认系统提示。`Build(session.messages)` 返回供 tokenizer 编码的字符串，不修改会话状态。
 
-`SetChatTemplate` 还接受以 `{%` 或 `{{` 开头的课程简化 Jinja 模板，支持单引号字符串拼接、消息字段与固定下标访问、`loop.first`、`if/endif`、`for message in messages/endfor`、`and/or`、`==/!=`，`add_generation_prompt` 固定为 true。接受标签内的 `-` 标记，但不实现完整 Jinja 的空白裁剪、`else` 或过滤器；未知模板名称回退到纯文本，空模板恢复默认模式。当前项目尚无 GGUF 元数据读取模块，因此本次仅移植 `PromptBuilder` 类，模板由调用方传入，未引入 `LoadChatTemplateFromGguf`。
+`SetChatTemplate` 还接受以 `{%` 或 `{{` 开头的课程简化 Jinja 模板，支持单引号字符串拼接、消息字段与固定下标访问、`loop.first`、`if/endif`、`for message in messages/endfor`、`and/or`、`==/!=`，`add_generation_prompt` 固定为 true。接受标签内的 `-` 标记，但不实现完整 Jinja 的空白裁剪、`else` 或过滤器；未知模板名称回退到纯文本，空模板恢复默认模式。模板由调用方传入；可用 `GgufGetMetadataString(path, "tokenizer.chat_template", tmpl)` 读取 GGUF 中的原始模板，再交给 `SetChatTemplate`。未引入 `LoadChatTemplateFromGguf` 或其架构回退逻辑。
 
 终端测试使用 `ctest --test-dir build/linux -L terminal --output-on-failure`，包含 7 项课程移植测试和 7 项补充测试，自动重定向标准输入输出，无需人工交互。Windows 使用 `build/windows -C Debug`。`PrintUserPrompt` 和 `PrintAssistantPrefix` 输出后刷新，`PrintTokenText` 不换行、不刷新，调用方可用 `Flush` 刷新流式输出；`ReadLine` 保留行内空白，空行与 EOF 均返回空字符串，可用 `std::cin.eof()` 区分。统计中的耗时和吞吐保留两位小数，零耗时显示 `n/a`，统计和参数展示不改变 `std::cout` 的浮点格式。帮助列出 `/help`、`/clear`、`/stats`、`/params` 和 `/exit`，命令解析由调用方负责；当前尚无可运行的聊天主程序。
 
@@ -81,3 +81,59 @@ ctest --test-dir build/windows -C Debug -L forward --output-on-failure
 2026-11-03 最新 Windows / MinGW Debug 验证：编译成功，183 项测试全部通过，包含 50 项算子测试及此前失败的 Batch、GQA 和 NeoX 测试。本轮测试适配为 7 处 `Rope` 调用显式传入 `RopeType::Normal`，未修改功能代码；完整输出位于 `build/windows/ctest-run.log`。
 
 JSON 词表使用 `[{"id": 0, "content": "<unk>", "special": true}, ...]` 格式。BPE 使用 `{"token": id, ...}` 词表、每行一对符号的合并规则和可选的 `bos_id` / `eos_id` / `unk_id` 配置。ASCII 与 JSON 编码添加 BOS；BPE 不自动添加 BOS/EOS，`DecodeToken` 返回词表映射符号，`Decode` 还原文本字节。
+
+## 直接从 GGUF 加载 tokenizer
+
+`GgufTokenizer` 移植自课程的 `gguf_tokenizer.cc`，已接入 `mini_llama` 静态库。无需先导出 JSON，也不读取张量权重：
+
+```cpp
+#include "gguf_tokenizer.h"
+
+auto tokenizer = CreateGgufTokenizer(
+    "references/mini-llama-cpp/models/chat/Qwen2-0.5B-Instruct-Q8_0.gguf");
+if (tokenizer) {
+    auto ids = tokenizer->Encode("<|im_start|>user\n你好！<|im_end|>\n");
+    auto text = tokenizer->Decode(ids);
+}
+```
+
+直接读取小端 GGUF v2/v3 的 `tokenizer.ggml.tokens`、`merges`、`token_type` 和 BOS/EOS/UNK ID，按原数组下标保留 token ID；`token_type=3` 的控制 token 按最长匹配识别。合并规则、类型和特殊 ID 可缺省，ID 默认 `-1`；类型数组长度不符时忽略其特殊 token 标记。词表缺失、为空或重复、元数据损坏或已读取的特殊 ID 越界时加载失败，工厂返回 `nullptr`，实例重新加载失败后清空旧状态。缺少字节词表项时编码输出 `unk_id`，调用方应检查未配置 UNK 时的 `-1`。
+
+行为与现有课程 `BpeTokenizer` 一致：不自动添加 BOS/EOS；`DecodeToken` 返回映射符号（例如空格对应 `Ġ`），`Decode` 将整段还原为原始字节。仅支持 GPT-2 字节级 BPE，未实现模型专用的正则预分词或 SentencePiece；显式声明其他 `tokenizer.ggml.model` 时拒绝加载。测试验证与本项目 BPE 的一致性，不保证与完整 Hugging Face/llama.cpp 分词结果逐项相同。
+
+```bash
+ctest --test-dir build/linux -L gguf_tokenizer --output-on-failure
+```
+
+测试使用自建微型 GGUF，不依赖模型下载；另有两项可选测试从项目根目录定位本地课程 Qwen2 模型及 `models/chat` 的导出文件，检查真实词表、ChatML 和中英文编解码及 BPE 一致性，文件缺失时跳过。Windows 使用 `build/windows -C Debug`。
+
+## 从 GGUF 导出 BPE tokenizer
+
+`scripts/export_gguf_tokenizer.py` 移植自课程的 Python 路线，仅依赖 Python 3 标准库。脚本读取小端 GGUF v2/v3 的 metadata，不加载模型权重；输入模型需自行准备。使用本地课程模型时，在项目根目录执行：
+
+```bash
+python3 scripts/export_gguf_tokenizer.py \
+  references/mini-llama-cpp/models/chat/Qwen2-0.5B-Instruct-Q8_0.gguf \
+  --out-dir models/chat
+```
+
+Windows 可将 `python3` 换成 `python`，命令写为单行。输出包含 `vocab.json`、存在时的 `merges.txt`、`special_tokens.json` 和可选的 `chat_template.txt`。词表 ID 来自原数组下标，合并规则保留原顺序，缺失的特殊 token ID 为 `-1`。`models/` 已被 Git 忽略。
+
+导出的 BPE 文件可直接交给现有工厂：
+
+```cpp
+auto tokenizer = CreateBpeTokenizer(
+    "models/chat/vocab.json",
+    "models/chat/merges.txt",
+    "models/chat/special_tokens.json");
+if (tokenizer) {
+    auto ids = tokenizer->Encode("Hello, 你好！");
+    auto text = tokenizer->Decode(ids);
+}
+```
+
+这一步可独立验证分词，不依赖尚未完成的 GGUF 权重加载或聊天主程序。导出脚本的自建夹具测试单独运行，无需模型文件：
+
+```bash
+python3 -m unittest discover -s test -p 'test_export_gguf_tokenizer.py' -v
+```

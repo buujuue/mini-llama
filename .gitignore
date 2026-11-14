@@ -1,7 +1,9 @@
 /docs/
 /references/
 /build/
+/models/
 /compile_commands.json
+__pycache__/
 .vscode
 .cache
 .agents

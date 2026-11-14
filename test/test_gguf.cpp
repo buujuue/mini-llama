@@ -374,4 +374,141 @@ TEST_F(GgufTest, MultipleTensorsKeepRelativeOffsets) {
     EXPECT_EQ(reader.tensors[1].shape, (std::vector<uint64_t>{4}));
 }
 
+TEST_F(GgufTest, ReadsTypedIntegerMetadata) {
+    struct IntegerCase {
+        uint32_t type;
+        size_t width;
+        int64_t value;
+    };
+    for (const auto& sample : std::vector<IntegerCase>{
+             {GgufTypeUint8, 1, 255}, {GgufTypeInt8, 1, -128},
+             {GgufTypeUint16, 2, 65535}, {GgufTypeInt16, 2, -32768},
+             {GgufTypeUint32, 4, 4294967295LL}, {GgufTypeInt32, 4, -2147483648LL},
+             {GgufTypeUint64, 8, std::numeric_limits<int64_t>::max()},
+             {GgufTypeInt64, 8, std::numeric_limits<int64_t>::min()}}) {
+        SCOPED_TRACE(sample.type);
+        const std::string path = Write(MakeGguf({
+            {"value", sample.type, IntegerValue(static_cast<uint64_t>(sample.value), sample.width)},
+        }, {}));
+        int64_t value = 0;
+        ASSERT_TRUE(GgufGetMetadataInt(path, "value", value));
+        EXPECT_EQ(value, sample.value);
+    }
+    const auto path = Write(MakeGguf({
+        {"too_large", GgufTypeUint64, IntegerValue(std::numeric_limits<uint64_t>::max(), 8)},
+        {"wrong_type", GgufTypeBool, IntegerValue(1, 1)},
+    }, {}));
+    int64_t value = 42;
+    EXPECT_FALSE(GgufGetMetadataInt(path, "too_large", value));
+    EXPECT_FALSE(GgufGetMetadataInt(path, "wrong_type", value));
+    EXPECT_FALSE(GgufGetMetadataInt(path, "absent", value));
+    EXPECT_EQ(value, 42);
+}
+
+TEST_F(GgufTest, ReadsTypedStringAndFloatMetadata) {
+    const auto path = Write(MakeGguf({
+        {"text", GgufTypeString, StringValue("你好\n\"quoted\"")},
+        {"f32", GgufTypeFloat32, IntegerValue(0x3f000000)},
+        {"f64", GgufTypeFloat64, IntegerValue(0x3fe0000000000000ULL, 8)},
+    }, {}));
+    std::string text = "previous";
+    ASSERT_TRUE(GgufGetMetadataString(path, "text", text));
+    EXPECT_EQ(text, "你好\n\"quoted\"");
+    EXPECT_FALSE(GgufGetMetadataString(path, "f32", text));
+    EXPECT_FALSE(GgufGetMetadataString(path, "absent", text));
+    EXPECT_EQ(text, "你好\n\"quoted\"");
+    double value = 1.0;
+    ASSERT_TRUE(GgufGetMetadataFloat(path, "f32", value));
+    EXPECT_DOUBLE_EQ(value, 0.5);
+    ASSERT_TRUE(GgufGetMetadataFloat(path, "f64", value));
+    EXPECT_DOUBLE_EQ(value, 0.5);
+    EXPECT_FALSE(GgufGetMetadataFloat(path, "text", value));
+    EXPECT_FALSE(GgufGetMetadataFloat(path, "absent", value));
+    EXPECT_DOUBLE_EQ(value, 0.5);
+}
+
+TEST_F(GgufTest, ReadsTypedArraysAndSkipsUnrelatedMetadata) {
+    const std::vector<std::string> tokens{"a", "Ġ", "你好", "\n\"\\", ""};
+    const std::vector<int32_t> types{1, 3, -1, std::numeric_limits<int32_t>::min()};
+    const auto path = Write(MakeGguf({
+        {"floats", GgufTypeArray, [] {
+            Bytes data = IntegerValue(GgufTypeFloat32);
+            AppendLe(data, 2, 8);
+            data.resize(data.size() + 8, 0);
+            return data;
+        }()},
+        {"tokens", GgufTypeArray, StringArrayValue(tokens)},
+        {"types", GgufTypeArray, IntArrayValue(types)},
+        {"empty_strings", GgufTypeArray, StringArrayValue({})},
+        {"empty_ints", GgufTypeArray, IntArrayValue({})},
+    }, {}));
+    std::vector<std::string> strings;
+    std::vector<int32_t> integers;
+    ASSERT_TRUE(GgufGetMetadataStringArray(path, "tokens", strings));
+    ASSERT_TRUE(GgufGetMetadataIntArray(path, "types", integers));
+    EXPECT_EQ(strings, tokens);
+    EXPECT_EQ(integers, types);
+    EXPECT_FALSE(GgufGetMetadataStringArray(path, "types", strings));
+    EXPECT_FALSE(GgufGetMetadataIntArray(path, "tokens", integers));
+    EXPECT_FALSE(GgufGetMetadataStringArray(path, "absent", strings));
+    EXPECT_FALSE(GgufGetMetadataIntArray(path, "absent", integers));
+    EXPECT_EQ(strings, tokens);
+    EXPECT_EQ(integers, types);
+    ASSERT_TRUE(GgufGetMetadataStringArray(path, "empty_strings", strings));
+    ASSERT_TRUE(GgufGetMetadataIntArray(path, "empty_ints", integers));
+    EXPECT_TRUE(strings.empty());
+    EXPECT_TRUE(integers.empty());
+}
+
+TEST_F(GgufTest, TypedReadsRejectInvalidHeadersAndCounts) {
+    int64_t value = 42;
+    EXPECT_FALSE(GgufGetMetadataInt(missing_path_.string(), "value", value));
+    Bytes valid = MakeGguf({{"value", GgufTypeInt32, IntegerValue(1)}}, {});
+    for (size_t length : {size_t{0}, size_t{4}, size_t{8}, size_t{16}, size_t{23}}) {
+        EXPECT_FALSE(GgufGetMetadataInt(Write(Bytes(valid.begin(), valid.begin() + length)),
+                                        "value", value));
+    }
+    Bytes invalid = valid;
+    invalid[0] = '!';
+    EXPECT_FALSE(GgufGetMetadataInt(Write(invalid), "value", value));
+    invalid = valid;
+    WriteLe(invalid, 4, 1, 4);
+    EXPECT_FALSE(GgufGetMetadataInt(Write(invalid), "value", value));
+    for (size_t count_offset : {size_t{8}, size_t{16}}) {
+        invalid = valid;
+        WriteLe(invalid, count_offset, 1000001, 8);
+        EXPECT_FALSE(GgufGetMetadataInt(Write(invalid), "value", value));
+    }
+    EXPECT_EQ(value, 42);
+}
+
+TEST_F(GgufTest, TypedReadsRejectTruncationAndDuplicateKeysAfterTarget) {
+    int64_t value = 42;
+    const MetadataEntry target{"value", GgufTypeInt32, IntegerValue(1)};
+    EXPECT_FALSE(GgufGetMetadataInt(Write(MakeGguf({target, target}, {})), "value", value));
+    EXPECT_FALSE(GgufGetMetadataInt(Write(MakeGguf({target,
+        {"truncated", GgufTypeString, IntegerValue(100, 8)},
+    }, {})), "value", value));
+    EXPECT_EQ(value, 42);
+}
+
+TEST_F(GgufTest, TypedArraysRejectInvalidLengthsTypesAndTruncation) {
+    std::vector<std::string> strings{"previous"};
+    std::vector<int32_t> integers{42};
+    for (const auto& sample : std::vector<std::pair<uint32_t, uint64_t>>{
+             {GgufTypeString, 10000001}, {GgufTypeInt32, 10000001},
+             {GgufTypeString, 100}, {GgufTypeInt32, 100},
+             {999, 0}, {GgufTypeArray, 0}}) {
+        SCOPED_TRACE(sample.first);
+        SCOPED_TRACE(sample.second);
+        Bytes array = IntegerValue(sample.first);
+        AppendLe(array, sample.second, 8);
+        const auto path = Write(MakeGguf({{"array", GgufTypeArray, array}}, {}));
+        EXPECT_FALSE(GgufGetMetadataStringArray(path, "array", strings));
+        EXPECT_FALSE(GgufGetMetadataIntArray(path, "array", integers));
+    }
+    EXPECT_EQ(strings, (std::vector<std::string>{"previous"}));
+    EXPECT_EQ(integers, (std::vector<int32_t>{42}));
+}
+
 }  // namespace

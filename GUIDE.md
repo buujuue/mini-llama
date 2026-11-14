@@ -8,7 +8,7 @@ mini_llama/
 ├── GUIDE.md                       # 本文件：本地目录导航
 ├── README.md                      # 项目简介
 ├── CONTRIBUTING.md                # 项目提交规范、验证要求与 PR 审核流程
-├── THIRD_PARTY_NOTICES.md          # 课程 tokenizer/RadixTree/RequestContext/前向输入检查/采样器/会话/PromptBuilder/Terminal/模型描述解析器及移植测试的 MIT 许可
+├── THIRD_PARTY_NOTICES.md          # 课程 tokenizer/GGUF 元数据读取与分词器/GGUF 导出脚本/RadixTree/RequestContext/前向输入检查/采样器/会话/PromptBuilder/Terminal/模型描述解析器及移植测试的 MIT 许可
 ├── CMakeLists.txt                 # C++17 静态库与 CTest 测试入口
 ├── .gitignore                     # 本地资料、配置和产物的忽略规则
 ├── .vscode/                       # Git 忽略：本地 VSCode 配置
@@ -25,7 +25,7 @@ mini_llama/
 │   ├── ops.h                       # 六个 F32 基础算子的接口、RoPE 辅助函数与形状约定
 │   ├── model.h                     # ModelConfig、LayerWeights 与 Model 的 F32 权重结构
 │   ├── loader.h                    # ModelDescriptor、枚举元信息、ParseDescriptor 与 LoadModel 接口
-│   ├── gguf.h                      # GGUF v3 元数据/张量信息、GgufReader 与 InspectGguf 接口
+│   ├── gguf.h                      # GGUF v3 元数据/张量信息、GgufReader、InspectGguf 与 v2/v3 类型化元数据读取接口
 │   ├── gguf_loader.h               # GGUF 张量名称映射、BuildConfig 配置构建与 LoadGgufModel 接口
 │   ├── batch.h                     # Batch：单 token/序列批次构造、GetToken/GetPos 按下标查询 token 与位置
 │   ├── chat.h                      # ChatRole、ChatMessage 与只读角色名转换；ChatSession 会话状态接口
@@ -37,7 +37,8 @@ mini_llama/
 │   ├── kv_cache.h                  # KvCache 写入与按层、位置、KV 头读取指针的接口
 │   ├── radix_tree.h                # RadixTree：token 压缩前缀树、去重计数与最长公共前缀查询
 │   ├── request_context.h           # RequestContext：请求元数据、事件记录与公开只读 trace 格式化接口
-│   └── tokenizer.h                 # ITokenizer、ASCII/JSON/BPE tokenizer 与创建接口
+│   ├── tokenizer.h                 # ITokenizer、ASCII/JSON/BPE tokenizer 与创建接口
+│   └── gguf_tokenizer.h            # 从 GGUF 元数据直接加载字节级 BPE 的 GgufTokenizer 与工厂
 ├── src/                           # 自己实现的源文件
 │   ├── tensor.cpp                  # Tensor 实现与形状、索引检查
 │   ├── ops.cpp                     # Matmul/Linear Naive 实现，以及 RmsNorm、Softmax、SwiGlu、Rope
@@ -47,8 +48,8 @@ mini_llama/
 │   ├── prompt_builder.cpp          # 已接入静态库的提示词构建与课程简化 Jinja 解释器；角色名复用 RoleToString
 │   ├── terminal.cpp                # 已接入静态库的终端输入输出；数值展示不修改 stdout 的浮点格式
 │   ├── loader.cpp                  # 模型描述解析、枚举映射与完整性检查；按 TensorId 读取全局/逐层 F32 权重，LoadFailure 返回并记录加载错误
-│   ├── gguf.cpp                    # GGUF v3 结构解析、张量大小/文件边界检查和信息打印；在 gguf_tests/gguf_loader_tests 中编译
-│   ├── gguf_loader.cpp             # GGUF 模型加载主流程、输出权重回退与全局/逐层形状校验；元数据读取、形状映射及权重解码仍为占位，在 gguf_loader_tests 中编译
+│   ├── gguf.cpp                    # 已接入静态库的 GGUF v3 结构解析、张量边界检查、信息打印和 v2/v3 类型化元数据读取；原始张量读取仍为占位
+│   ├── gguf_loader.cpp             # GGUF 模型加载主流程、输出权重回退与全局/逐层形状校验；形状映射及权重解码仍为占位，在 gguf_loader_tests 中编译
 │   ├── batch.cpp                   # 批次 token 复制、保存起始位置并按下标计算连续位置；当前仅在 batch_tests 中编译
 │   ├── kv_cache.cpp                # KV cache 实现；当前在 kv_cache_tests/context_tests/forward_tests 中编译
 │   ├── radix_tree.cpp              # 已接入静态库的 RadixTree 实现，支持节点分裂、清空和移动
@@ -56,9 +57,18 @@ mini_llama/
 │   └── tokenizer/                 # 已接入静态库的 tokenizer 实现
 │       ├── ascii_tokenizer.cpp     # ASCII 编码与解码
 │       ├── json_vocab_tokenizer.cpp # JSON 词表加载、最长匹配编码、解码与 ASCII 回退工厂
-│       └── bpe_tokenizer.cpp       # BPE 加载、字节映射、合并、特殊 token、解码与工厂
-├── test/                          # GoogleTest 单元测试
-│   ├── CMakeLists.txt              # 下载 GoogleTest、构建十六个测试程序、注册 CTest 并部署 MinGW 运行库
+│       ├── bpe_tokenizer.cpp       # BPE 加载、字节映射、合并、特殊 token、解码与工厂
+│       └── gguf_tokenizer.cpp      # 直接读取 GGUF 词表、合并规则、控制 token 与 BOS/EOS/UNK，复用课程字节级 BPE 行为
+├── scripts/                       # Python 标准库离线工具
+│   └── export_gguf_tokenizer.py    # GGUF v2/v3 tokenizer metadata → vocab/merges/special_tokens/chat_template
+├── models/                        # Git 忽略：本地模型及导出数据
+│   └── chat/                      # 默认 tokenizer 导出目录，不复制 GGUF 模型权重
+│       ├── vocab.json             # token 字符串到 ID 的 BPE 词表
+│       ├── merges.txt             # 按 merge rank 排列的合并规则
+│       ├── special_tokens.json     # BOS/EOS/UNK/PAD ID，缺省为 -1
+│       └── chat_template.txt      # GGUF 中存在时导出的原始模板
+├── test/                          # GoogleTest 单元测试与 Python 脚本测试
+│   ├── CMakeLists.txt              # 下载 GoogleTest、构建十七个测试程序、注册 CTest 并部署 MinGW 运行库
 │   ├── test_tensor.cpp             # Tensor 访问、AssertShape、Reshape 移植与边界测试
 │   ├── test_ops.cpp                # 六个已实现基础算子的数值、形状与边界验收，CTest 标签 ops
 │   ├── test_sampler.cpp            # Sample 分派、Top-k 范围、并列、种子、温度权重与输入边界的 21 项测试，CTest 标签 sampler
@@ -66,9 +76,11 @@ mini_llama/
 │   ├── test_prompt_builder.cpp     # 纯文本/Qwen2、Jinja 渲染及边界、会话与分词器衔接测试，CTest 标签 prompt_builder
 │   ├── test_terminal.cpp           # Terminal 的 7 项移植测试及 7 项补充测试，覆盖输出、刷新、逐行输入与 EOF，CTest 标签 terminal
 │   ├── test_tokenizer.cpp          # ASCII/JSON/BPE 与工厂测试，自建词表，CTest 标签 tokenizer
+│   ├── test_export_gguf_tokenizer.py # 自建 GGUF 验证 Python 导出 CLI、UTF-8/转义、顺序与无效输入；独立运行
 │   ├── test_loader.cpp             # 自建两层 GQA 描述和权重，覆盖元信息、全局/逐层赋值、乱序偏移及加载失败返回与日志，CTest 标签 loader
-│   ├── gguf_fixture.h             # 自建 GGUF v3 字节夹具，独立临时目录与清理，不依赖模型文件
-│   ├── test_gguf.cpp              # 15 项移植测试及元数据、数组、存储大小、溢出与信息打印补充测试，CTest 标签 gguf
+│   ├── gguf_fixture.h             # 自建 GGUF v3 字节夹具及字符串/整数数组构造，独立临时目录与清理
+│   ├── test_gguf.cpp              # 15 项移植测试及元数据、数组、存储大小、溢出、信息打印和类型化读取补充测试，CTest 标签 gguf
+│   ├── test_gguf_tokenizer.cpp    # 20 项独立夹具测试及 2 项可选本地模型/BPE 对比，CTest 标签 gguf_tokenizer
 │   ├── test_gguf_loader.cpp       # 全局/逐层/偏置名称映射与解析、配置失败返回测试，CTest 标签 gguf_loader
 │   ├── test_gguf_shapes.cpp       # 直接包含加载器实现，验证 GQA、必需权重与可选偏置的形状，CTest 标签 gguf_loader
 │   ├── test_kv_cache.cpp           # 移植课程 KV cache 的 6 项测试，CTest 标签 kv_cache
@@ -95,6 +107,7 @@ mini_llama/
 │   │   ├── test/tensor_tests.exe   # Tensor 测试程序
 │   │   ├── test/ops_tests.exe      # 基础算子测试程序
 │   │   ├── test/tokenizer_tests.exe # tokenizer 测试程序
+│   │   ├── test/gguf_tokenizer_tests.exe # GGUF tokenizer 测试程序
 │   │   ├── test/loader_tests.exe    # 模型描述解析测试程序
 │   │   ├── test/kv_cache_tests.exe # KV cache 测试程序
 │   │   ├── test/radix_tree_tests.exe # RadixTree 测试程序
@@ -109,5 +122,6 @@ mini_llama/
 │   └── .npm-cache/                # 文档检索工具的本地缓存
 ├── compile_commands.json          # Git 忽略：编译命令数据库
 ├── .cache/                        # Git 忽略：工具缓存
+├── __pycache__/                   # Git 忽略：各级目录下的 Python 字节码缓存
 └── .git/                          # 本仓库 Git 元数据
 ```

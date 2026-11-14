@@ -50,6 +50,20 @@ inline Bytes StringValue(const std::string& value) {
     return data;
 }
 
+inline Bytes StringArrayValue(const std::vector<std::string>& values) {
+    Bytes data = IntegerValue(GgufTypeString);
+    AppendLe(data, values.size(), 8);
+    for (const auto& value : values) AppendString(data, value);
+    return data;
+}
+
+inline Bytes IntArrayValue(const std::vector<int32_t>& values) {
+    Bytes data = IntegerValue(GgufTypeInt32);
+    AppendLe(data, values.size(), 8);
+    for (int32_t value : values) AppendLe(data, static_cast<uint32_t>(value), 4);
+    return data;
+}
+
 struct MetadataEntry {
     std::string key;
     uint32_t type;
