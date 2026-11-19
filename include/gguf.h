@@ -80,6 +80,7 @@ bool GgufGetMetadataStringArray(const std::string& path, const std::string& key,
 bool GgufGetMetadataIntArray(const std::string& path, const std::string& key,
                              std::vector<int32_t>& out);
 
-// 原始张量读取尚未移植，当前调用会抛出“未完成”异常。
+// 按形状和存储类型读取原始张量字节，支持 F32/F16/Q4_0/Q4_1/Q8_0。
+// 无效描述、不支持的类型、文件打开或读取失败时返回空数组。
 std::vector<uint8_t> ReadGgufTensorRaw(const std::string& path,
                                      const GgufTensorInfo& info, uint64_t data_offset);

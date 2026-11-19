@@ -14,11 +14,12 @@ mini_llama 是一个面向 Llama 大语言模型推理的 C++17 学习与实践�
 - **请求跟踪**：`RequestContext` 提供 trace ID、请求计时、事件记录、错误状态与只读摘要/事件格式化。
 - **采样器**：`Sampler::Sample` 根据 `SamplingParams` 选择贪心、全词表温度或 Top-k 采样，支持固定种子复现，并校验 logits 与参数。
 - **会话状态**：`ChatSession` 管理消息、token 历史、前缀缓存和累计统计；`ChatMessage` 使用 `ChatRole` 枚举保存角色。
-- **提示词构建**：`PromptBuilder` 将消息历史构造成纯文本、内置 Qwen2 或课程简化 Jinja 模板文本，角色名适配 `ChatRole`。
+- **提示词构建**：`PromptBuilder` 将消息历史构造成纯文本、内置 Qwen2 或课程简化 Jinja 模板文本，角色名适配 `ChatRole`；`LoadChatTemplateFromGguf` 读取 GGUF 模板并提供 Qwen2 架构回退。
 - **终端交互**：`Terminal` 提供提示符、逐行输入、流式 token 输出，以及帮助、会话统计和采样参数展示。
+- **GGUF 模型加载**使用 `LoadGgufModel` 读取 GGUF v3 的 F32、F16、Q8_0、Q4_0、Q4_1 权重，统一转换为 F32 `Tensor`，支持 GQA、可选注意力偏置及输出权重回退。
 - **单元测试**：使用 GoogleTest 和 CTest 验证张量访问、算子数值结果、形状约束、分词器、KV cache、前缀树、批次构造、上下文初始化与请求跟踪；分词器测试自行生成小词表，无需下载模型。
 
-张量、基础算子、分词器、前缀树、采样器、会话状态、提示词构建与终端输入输出已接入静态库；KV cache、batch、Context 与 RequestContext 当前通过独立测试目标编译验证，尚未接入模型权重加载和完整文本生成流程。项目目录与重要文件见 [GUIDE.md](GUIDE.md)；学习文档和上游参考源码保存在本地，不提交到 Git。移植代码的许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+张量、基础算子、分词器、前缀树、采样器、会话状态、提示词构建、终端输入输出与 GGUF 模型加载已接入静态库。KV cache、batch、Context 与 RequestContext 当前通过独立测试目标编译验证，GGUF 加载测试覆盖加载后的批次前向调用。项目目录与重要文件见 [GUIDE.md](GUIDE.md)。学习文档和上游参考源码保存在本地，不提交到 Git。移植代码的许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 提交代码请遵循 [项目提交规范](CONTRIBUTING.md)。
 
@@ -68,7 +69,9 @@ Linux / WSL 将构建目录改为 `build/linux`。`RequestContext` 的各阶段�
 
 提示词测试使用 `ctest --test-dir build/linux -L prompt_builder --output-on-failure`。默认按 `System: / User: / Assistant: ` 格式输出历史，并追加 `Assistant:`；`SetChatTemplate("qwen2")` 使用 ChatML 格式，在历史中没有 system 消息时注入默认系统提示。`Build(session.messages)` 返回供 tokenizer 编码的字符串，不修改会话状态。
 
-`SetChatTemplate` 还接受以 `{%` 或 `{{` 开头的课程简化 Jinja 模板，支持单引号字符串拼接、消息字段与固定下标访问、`loop.first`、`if/endif`、`for message in messages/endfor`、`and/or`、`==/!=`，`add_generation_prompt` 固定为 true。接受标签内的 `-` 标记，但不实现完整 Jinja 的空白裁剪、`else` 或过滤器；未知模板名称回退到纯文本，空模板恢复默认模式。模板由调用方传入；可用 `GgufGetMetadataString(path, "tokenizer.chat_template", tmpl)` 读取 GGUF 中的原始模板，再交给 `SetChatTemplate`。未引入 `LoadChatTemplateFromGguf` 或其架构回退逻辑。
+`SetChatTemplate` 还接受以 `{%` 或 `{{` 开头的课程简化 Jinja 模板，支持单引号字符串拼接、消息字段与固定下标访问、`loop.first`、`if/endif`、`for message in messages/endfor`、`and/or`、`==/!=`，`add_generation_prompt` 固定为 true。接受标签内的 `-` 标记，但不实现完整 Jinja 的空白裁剪、`else` 或过滤器；未知模板名称回退到纯文本，空模板恢复默认模式。
+
+`LoadChatTemplateFromGguf(path)` 从小端 GGUF v2/v3 读取原始 `tokenizer.chat_template`，不读取张量权重。模板缺失或类型不符时，仅 `general.architecture == "qwen2"` 返回内置模板名 `"qwen2"`，其他架构返回空字符串；显式存储的空模板保持为空。文件不存在或元数据损坏时返回空字符串。将返回值传给 `SetChatTemplate` 即可，返回空字符串时使用纯文本模式。测试使用自建微型 GGUF，覆盖模板加载、架构回退、异常输入及分词器衔接，无需下载模型。
 
 终端测试使用 `ctest --test-dir build/linux -L terminal --output-on-failure`，包含 7 项课程移植测试和 7 项补充测试，自动重定向标准输入输出，无需人工交互。Windows 使用 `build/windows -C Debug`。`PrintUserPrompt` 和 `PrintAssistantPrefix` 输出后刷新，`PrintTokenText` 不换行、不刷新，调用方可用 `Flush` 刷新流式输出；`ReadLine` 保留行内空白，空行与 EOF 均返回空字符串，可用 `std::cin.eof()` 区分。统计中的耗时和吞吐保留两位小数，零耗时显示 `n/a`，统计和参数展示不改变 `std::cout` 的浮点格式。帮助列出 `/help`、`/clear`、`/stats`、`/params` 和 `/exit`，命令解析由调用方负责；当前尚无可运行的聊天主程序。
 
@@ -82,17 +85,38 @@ ctest --test-dir build/windows -C Debug -L forward --output-on-failure
 
 JSON 词表使用 `[{"id": 0, "content": "<unk>", "special": true}, ...]` 格式。BPE 使用 `{"token": id, ...}` 词表、每行一对符号的合并规则和可选的 `bos_id` / `eos_id` / `unk_id` 配置。ASCII 与 JSON 编码添加 BOS；BPE 不自动添加 BOS/EOS，`DecodeToken` 返回词表映射符号，`Decode` 还原文本字节。
 
+## 从 GGUF 加载模型
+
+静态库公开 `gguf_loader.h` 中的模型加载接口。
+
+```cpp
+#include "gguf_loader.h"
+
+Model model = LoadGgufModel("path/to/model.gguf");
+if (!model.loaded) {
+    // model.load_error 保存解析、配置或权重加载失败的原因。
+}
+```
+
+二维 GGUF 权重 `[in, out]` 映射为行主序 `[out, in]`，原始数据顺序保持一致。量化格式按每块 32 个元素解码，结果保存在连续的 F32 数据中，加载后的内存用量按 F32 权重计算。缺少 `output.weight` 时复制 token embedding 作为输出权重。加载成功前校验全局、逐层和可选偏置的形状。
+
+`ctest --test-dir build/linux -L gguf_loader --output-on-failure` 使用自建两层 GQA 模型验证五种格式、配置和数据边界、输出权重回退，以及加载后的 `ForwardBatch` 调用。Windows 使用 `build/windows -C Debug`。
+
 ## 直接从 GGUF 加载 tokenizer
 
 `GgufTokenizer` 移植自课程的 `gguf_tokenizer.cc`，已接入 `mini_llama` 静态库。无需先导出 JSON，也不读取张量权重：
 
 ```cpp
 #include "gguf_tokenizer.h"
+#include "prompt_builder.h"
 
-auto tokenizer = CreateGgufTokenizer(
-    "references/mini-llama-cpp/models/chat/Qwen2-0.5B-Instruct-Q8_0.gguf");
+const std::string model_path =
+    "references/mini-llama-cpp/models/chat/Qwen2-0.5B-Instruct-Q8_0.gguf";
+auto tokenizer = CreateGgufTokenizer(model_path);
 if (tokenizer) {
-    auto ids = tokenizer->Encode("<|im_start|>user\n你好！<|im_end|>\n");
+    PromptBuilder builder;
+    builder.SetChatTemplate(LoadChatTemplateFromGguf(model_path));
+    auto ids = tokenizer->Encode(builder.Build({{ChatRole::user, "你好！"}}));
     auto text = tokenizer->Decode(ids);
 }
 ```

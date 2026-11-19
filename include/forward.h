@@ -13,4 +13,4 @@
 #include "tensor.h"
 #include "tool.h"
 
-Tensor ForwardBatch(Context& ctx, const Model model, const Batch& batch);
+Tensor ForwardBatch(Context& ctx, const Model& model, const Batch& batch);

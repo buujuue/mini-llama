@@ -63,9 +63,14 @@ target_link_libraries(gguf_tokenizer_tests PRIVATE mini_llama GTest::gtest_main)
 target_compile_definitions(gguf_tokenizer_tests PRIVATE
     MINI_LLAMA_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
-# test_gguf_shapes.cpp 包含加载器实现，保留内部形状校验的独立测试。
-add_executable(gguf_loader_tests test_gguf_loader.cpp test_gguf_shapes.cpp)
+# 通过静态库调用加载器，并使用现有批次和 KV cache 实现验证前向入口。
+add_executable(gguf_loader_tests test_gguf_loader.cpp
+               "${PROJECT_SOURCE_DIR}/src/batch.cpp" "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
 target_link_libraries(gguf_loader_tests PRIVATE mini_llama GTest::gtest_main)
+
+# test_gguf_shapes.cpp 包含加载器实现，独立覆盖内部形状映射、解码和校验。
+add_executable(gguf_shape_tests test_gguf_shapes.cpp)
+target_link_libraries(gguf_shape_tests PRIVATE mini_llama GTest::gtest_main)
 
 # KV cache 尚未加入静态库，仅在测试目标中编译现有实现。
 add_executable(kv_cache_tests test_kv_cache.cpp "${PROJECT_SOURCE_DIR}/src/kv_cache.cpp")
@@ -103,6 +108,7 @@ gtest_discover_tests(loader_tests PROPERTIES TIMEOUT 10 LABELS loader)
 gtest_discover_tests(gguf_tests PROPERTIES TIMEOUT 10 LABELS gguf)
 gtest_discover_tests(gguf_tokenizer_tests PROPERTIES TIMEOUT 30 LABELS gguf_tokenizer)
 gtest_discover_tests(gguf_loader_tests PROPERTIES TIMEOUT 10 LABELS gguf_loader)
+gtest_discover_tests(gguf_shape_tests PROPERTIES TIMEOUT 10 LABELS gguf_loader)
 gtest_discover_tests(kv_cache_tests PROPERTIES TIMEOUT 10 LABELS kv_cache)
 gtest_discover_tests(radix_tree_tests PROPERTIES TIMEOUT 10 LABELS radix_tree)
 gtest_discover_tests(batch_tests PROPERTIES TIMEOUT 10 LABELS batch)

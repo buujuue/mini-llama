@@ -289,7 +289,7 @@ static Tensor ForwardToken(Context& ctx, const Model& model, int token) {
     }
 }
 
-Tensor ForwardBatch(Context& ctx, const Model model, const Batch& batch){
+Tensor ForwardBatch(Context& ctx, const Model& model, const Batch& batch){
     CheckForwardBatch(ctx, model, batch);
     Tensor logits;
     for (int i = 0; i < batch.size(); ++i){

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 yus3nable
+// SPDX-License-Identifier: MIT
+// GGUF 加载适配自 mini-llama-cpp/src/gguf_loader.cc，解码公式适配自 src/quant.cc。
 
 #include "gguf_loader.h"
 #include "gguf.h"
@@ -5,10 +8,12 @@
 #include "tensor.h"
 
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 #include <map>
 
@@ -79,6 +84,7 @@ std::string MapTensorName(const std::string& gguf_name) {
 
 ModelConfig BuildConfig(const std::string& path) {
     ModelConfig config;
+    config.vocab_size = 0;
 
     // 当前项目使用 size_t 保存维度，转换前拒绝负数和超出范围的值。
     auto get_size = [&](const std::string& key, size_t fallback) -> size_t {
@@ -154,16 +160,146 @@ ModelConfig BuildConfig(const std::string& path) {
     return config;
 }
 
-// 后续移植 GGUF 形状映射时替换，返回当前 Tensor 使用的 size_t 形状。
-static std::vector<size_t> MapShape(const std::vector<uint64_t>&) {
-    throw std::runtime_error("未完成：MapShape GGUF 张量形状映射");
+static std::vector<size_t> MapShape(const std::vector<uint64_t>& gguf_shape) {
+    if (gguf_shape.empty() || gguf_shape.size() > MaxTensorDims) {
+        throw std::runtime_error("Invalid GGUF tensor rank");
+    }
+    std::vector<size_t> shape;
+    shape.reserve(gguf_shape.size());
+    for (uint64_t dim : gguf_shape) {
+        if (dim == 0 || dim > std::numeric_limits<size_t>::max()) {
+            throw std::runtime_error("GGUF tensor dimension is outside size_t range");
+        }
+        shape.push_back(static_cast<size_t>(dim));
+    }
+    if (shape.size() == 2) {
+        std::swap(shape[0], shape[1]);
+    }
+    return shape;
 }
 
-// 当前模型使用 F32 Tensor；量化存储及原始权重解码尚未移植。
-static Tensor LoadQuantizedTensor(const std::vector<uint8_t>&,
-                                  const std::vector<size_t>&, uint32_t ggml_type) {
-    throw std::runtime_error("未完成：LoadQuantizedTensor GGUF 权重解码及量化支持，类型: "
-                             + std::to_string(ggml_type));
+static float ReadFp16(const uint8_t* bytes) {
+    const uint32_t value = static_cast<uint32_t>(bytes[0]) |
+                           (static_cast<uint32_t>(bytes[1]) << 8);
+    const uint32_t sign = (value & 0x8000u) << 16;
+    const uint32_t exponent = (value >> 10) & 0x1fu;
+    uint32_t mantissa = value & 0x03ffu;
+    uint32_t bits = sign;
+    if (exponent == 0) {
+        if (mantissa != 0) {
+            uint32_t exponent32 = 113;
+            while ((mantissa & 0x0400u) == 0) {
+                mantissa <<= 1;
+                --exponent32;
+            }
+            bits |= (exponent32 << 23) | ((mantissa & 0x03ffu) << 13);
+        }
+    } else if (exponent == 31) {
+        bits |= 0x7f800000u | (mantissa << 13);
+    } else {
+        bits |= ((exponent + 112) << 23) | (mantissa << 13);
+    }
+    float result = 0.0f;
+    std::memcpy(&result, &bits, sizeof(result));
+    return result;
+}
+
+// 模型统一使用 F32 Tensor，加载时完成 F16 转换或量化块解码。
+static Tensor LoadQuantizedTensor(const std::vector<uint8_t>& raw,
+                                  const std::vector<size_t>& shape, uint32_t ggml_type) {
+    if (shape.empty() || shape.size() > MaxTensorDims) {
+        throw std::runtime_error("Invalid GGUF tensor rank");
+    }
+    size_t num_elements = 1;
+    for (size_t dim : shape) {
+        if (dim == 0 || num_elements > std::numeric_limits<size_t>::max() / dim) {
+            throw std::runtime_error("Invalid GGUF tensor element count");
+        }
+        num_elements *= dim;
+    }
+
+    size_t block_size = 1;
+    size_t block_bytes = 0;
+    switch (ggml_type) {
+        case GgmlTypeF32:
+            block_bytes = 4;
+            break;
+        case GgmlTypeF16:
+            block_bytes = 2;
+            break;
+        case GgmlTypeQ80:
+            block_size = QuantBlockSize;
+            block_bytes = 34;
+            break;
+        case GgmlTypeQ40:
+            block_size = QuantBlockSize;
+            block_bytes = 18;
+            break;
+        case GgmlTypeQ41:
+            block_size = QuantBlockSize;
+            block_bytes = 20;
+            break;
+        default:
+            throw std::runtime_error("Unsupported GGUF tensor type: " + std::to_string(ggml_type));
+    }
+    if (shape.back() % block_size != 0) {
+        throw std::runtime_error("Quantized GGUF tensor row size must be a multiple of 32");
+    }
+    const size_t num_blocks = num_elements / block_size;
+    if (num_blocks > std::numeric_limits<size_t>::max() / block_bytes) {
+        throw std::runtime_error("GGUF tensor byte size overflow");
+    }
+    const size_t expected_bytes = num_blocks * block_bytes;
+    if (raw.size() != expected_bytes) {
+        throw std::runtime_error(std::string(GgmlTypeName(ggml_type))
+                                 + " tensor size mismatch: expected " + std::to_string(expected_bytes)
+                                 + " bytes, got " + std::to_string(raw.size()));
+    }
+
+    Tensor tensor(shape);
+    if (ggml_type == GgmlTypeF32) {
+        std::memcpy(tensor.data.data(), raw.data(), expected_bytes);
+        return tensor;
+    }
+    if (ggml_type == GgmlTypeF16) {
+        for (size_t i = 0; i < num_elements; ++i) {
+            tensor.data[i] = ReadFp16(raw.data() + i * 2);
+        }
+        return tensor;
+    }
+
+    for (size_t block_index = 0; block_index < num_blocks; ++block_index) {
+        const uint8_t* block = raw.data() + block_index * block_bytes;
+        const float scale = ReadFp16(block);
+        const size_t base = block_index * QuantBlockSize;
+        if (ggml_type == GgmlTypeQ80) {
+            for (size_t i = 0; i < QuantBlockSize; ++i) {
+                int value = block[2 + i];
+                if (value >= 128) {
+                    value -= 256;
+                }
+                tensor.data[base + i] = scale * static_cast<float>(value);
+            }
+            continue;
+        }
+
+        float minimum = 0.0f;
+        int zero_point = 8;
+        const uint8_t* values = block + 2;
+        if (ggml_type == GgmlTypeQ41) {
+            minimum = ReadFp16(block + 2);
+            zero_point = 0;
+            values += 2;
+        }
+        // 每字节的低四位对应前 16 个元素，高四位对应后 16 个元素。
+        for (size_t i = 0; i < QuantBlockSize / 2; ++i) {
+            const int low = static_cast<int>(values[i] & 0x0f) - zero_point;
+            const int high = static_cast<int>(values[i] >> 4) - zero_point;
+            tensor.data[base + i] = scale * static_cast<float>(low) + minimum;
+            tensor.data[base + i + QuantBlockSize / 2] = scale * static_cast<float>(high) + minimum;
+        }
+    }
+    return tensor;
 }
 
 static void RequireShape(const Tensor& tensor, const std::vector<size_t>& expected,
@@ -215,8 +351,13 @@ static void ValidateLoadedShapes(const Model& model) {
 Model LoadGgufModel(const std::string& gguf_path) {
     Model model;
     GgufReader reader;
-    if (!reader.load(gguf_path)) {
-        model.load_error = "GGUF parse error: " + reader.error;
+    try {
+        if (!reader.load(gguf_path)) {
+            model.load_error = "GGUF parse error: " + reader.error;
+            return model;
+        }
+    } catch (const std::exception& error) {
+        model.load_error = std::string("GGUF parse error: ") + error.what();
         return model;
     }
 
@@ -228,9 +369,6 @@ Model LoadGgufModel(const std::string& gguf_path) {
     }
 
     const ModelConfig& config = model.config;
-    std::cout << "GGUF config: vocab=" << config.vocab_size << " dim=" << config.dim << " layers=" << config.layers_num
-              << " heads=" << config.heads_num << " kv_heads=" << config.kv_heads_num << " head_dim=" << config.head_dim
-              << " hidden_dim=" << config.hidden_dim << " max_seq_len=" << config.max_seq_len << std::endl;
     
     std::map<std::string, const GgufTensorInfo*> tensor_map;
     for (const auto& t : reader.tensors) {
@@ -251,68 +389,41 @@ Model LoadGgufModel(const std::string& gguf_path) {
         std::vector<size_t> shape = MapShape(info->shape);
 
         std::vector<uint8_t> raw = ReadGgufTensorRaw(gguf_path, *info, reader.data_offset);
-        if (raw.empty() && info->type != GgmlTypeF32) {
+        if (raw.empty()) {
             throw std::runtime_error("Failed to read tensor: " + mapped_name);
         }
 
         return LoadQuantizedTensor(raw, shape, info->type);
     };
 
-    [[maybe_unused]] auto load_optional_weight = [&](const std::string& mapped_name) -> Tensor {
+    auto load_optional_weight = [&](const std::string& mapped_name) -> Tensor {
         if (tensor_map.find(mapped_name) == tensor_map.end()) {
             return Tensor();
         }
         return load_weight(mapped_name);
     };
 
-    
-    auto load_f32 = [&](const std::string& mapped_name) -> Tensor {
-        auto it = tensor_map.find(mapped_name);
-        if (it == tensor_map.end()) {
-            throw std::runtime_error("Missing tensor: " + mapped_name);
-        }
-        switch (it->second->type) {
-            case GgmlTypeF32:
-                return load_weight(mapped_name);
-            case GgmlTypeQ80:
-                throw std::runtime_error("未完成：DequantizeFromQ80，张量: " + mapped_name);
-            case GgmlTypeQ40:
-                throw std::runtime_error("未完成：DequantizeFromQ40，张量: " + mapped_name);
-            case GgmlTypeQ41:
-                throw std::runtime_error("未完成：DequantizeFromQ41，张量: " + mapped_name);
-            default:
-                throw std::runtime_error("Cannot convert tensor to F32: " + mapped_name);
-        }
-    };
-
-    auto load_optional_f32 = [&](const std::string& mapped_name) -> Tensor {
-        if (tensor_map.find(mapped_name) == tensor_map.end()) {
-            return Tensor();
-        }
-        return load_f32(mapped_name);
-    };
-
     try {
-        model.token_embedding = load_f32("token_embedding");
+        model.token_embedding = load_weight("token_embedding");
         model.layers.resize(config.layers_num);
         for (size_t layer = 0; layer < config.layers_num; ++layer) {
             LayerWeights& lw = model.layers[layer];
             const std::string prefix = "layers." + std::to_string(layer) + ".";
-            lw.attention_norm = load_f32(prefix + "attention_norm");
+            lw.attention_norm = load_weight(prefix + "attention_norm");
             lw.wq = load_weight(prefix + "wq");
             lw.wk = load_weight(prefix + "wk");
             lw.wv = load_weight(prefix + "wv");
-            lw.bq = load_optional_f32(prefix + "bq");
-            lw.bk = load_optional_f32(prefix + "bk");
-            lw.bv = load_optional_f32(prefix + "bv");
+            lw.bq = load_optional_weight(prefix + "bq");
+            lw.bk = load_optional_weight(prefix + "bk");
+            lw.bv = load_optional_weight(prefix + "bv");
             lw.wo = load_weight(prefix + "wo");
-            lw.ffn_norm = load_f32(prefix + "ffn_norm");
+            lw.ffn_norm = load_weight(prefix + "ffn_norm");
             lw.w_gate = load_weight(prefix + "w_gate");
             lw.w_up = load_weight(prefix + "w_up");
             lw.w_down = load_weight(prefix + "w_down");
         }
 
-        model.final_norm = load_f32("final_norm");
+        model.final_norm = load_weight("final_norm");
 
         // 有独立输出权重时读取，否则沿用 embedding 的权重值。
         auto it = tensor_map.find("lm_head");

@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <iostream>
 #include <limits>
@@ -372,6 +373,110 @@ TEST_F(GgufTest, MultipleTensorsKeepRelativeOffsets) {
     EXPECT_EQ(reader.tensors[1].name, "second");
     EXPECT_EQ(reader.tensors[1].offset, 32u);
     EXPECT_EQ(reader.tensors[1].shape, (std::vector<uint64_t>{4}));
+}
+
+TEST_F(GgufTest, RawTensorReadsSupportedStorageTypes) {
+    // 两块共 64 个元素，独立列出各格式的存储字节数。
+    for (const auto& storage : std::vector<std::pair<uint32_t, size_t>>{
+             {GgmlTypeF32, 256}, {GgmlTypeF16, 128}, {GgmlTypeQ40, 36},
+             {GgmlTypeQ41, 40}, {GgmlTypeQ80, 68}}) {
+        SCOPED_TRACE(storage.first);
+        Bytes data = MakeGguf({}, {{"weight", {32, 2}, storage.first}}, storage.second);
+        const size_t data_offset = data.size() - storage.second;
+        std::vector<uint8_t> expected(storage.second);
+        for (size_t i = 0; i < expected.size(); ++i) {
+            expected[i] = static_cast<uint8_t>(i * 37 + 128);
+            data[data_offset + i] = static_cast<char>(expected[i]);
+        }
+        const auto path = Write(data);
+        GgufReader reader;
+        ASSERT_TRUE(reader.load(path)) << reader.error;
+        ASSERT_EQ(reader.tensors.size(), 1u);
+        EXPECT_EQ(ReadGgufTensorRaw(path, reader.tensors[0], reader.data_offset), expected);
+    }
+}
+
+TEST_F(GgufTest, RawTensorHonorsAlignedDataAndRelativeOffsets) {
+    Bytes data = MakeGguf({{"general.alignment", GgufTypeUint32, IntegerValue(64)}},
+                         {{"first", {2}, GgmlTypeF32, 32},
+                          {"second", {4}, GgmlTypeF16, 0}}, 48, 64);
+    const size_t data_offset = data.size() - 48;
+    const std::vector<uint8_t> first{0, 0x80, 0xff, 0x3f, 0x80, 0, 0, 0xff};
+    const std::vector<uint8_t> second{0xff, 0, 0x3c, 0, 0x80, 0x7f, 0, 0x40};
+    std::copy(first.begin(), first.end(), data.begin() + data_offset + 32);
+    std::copy(second.begin(), second.end(), data.begin() + data_offset);
+    const auto path = Write(data);
+    GgufReader reader;
+    ASSERT_TRUE(reader.load(path)) << reader.error;
+    ASSERT_EQ(reader.tensors.size(), 2u);
+    ASSERT_EQ(reader.data_offset % 64, 0u);
+    EXPECT_EQ(ReadGgufTensorRaw(path, reader.tensors[0], reader.data_offset), first);
+    EXPECT_EQ(ReadGgufTensorRaw(path, reader.tensors[1], reader.data_offset), second);
+}
+
+TEST_F(GgufTest, RawTensorReturnsEmptyForMissingOrEmptyFile) {
+    const GgufTensorInfo info{"weight", {1}, GgmlTypeF32, 0};
+    EXPECT_TRUE(ReadGgufTensorRaw(missing_path_.string(), info, 0).empty());
+    EXPECT_TRUE(ReadGgufTensorRaw(Write({}), info, 0).empty());
+}
+
+TEST_F(GgufTest, RawTensorRejectsTruncatedPayloadAfterInspection) {
+    Bytes data = MakeGguf({}, {{"weight", {2}, GgmlTypeF32, 32}}, 40);
+    const auto path = Write(data);
+    GgufReader reader;
+    ASSERT_TRUE(reader.load(path)) << reader.error;
+    ASSERT_EQ(reader.tensors.size(), 1u);
+    data.pop_back();
+    Write(data);
+    EXPECT_TRUE(ReadGgufTensorRaw(path, reader.tensors[0], reader.data_offset).empty());
+}
+
+TEST_F(GgufTest, RawTensorRejectsInvalidShapesAndSizes) {
+    const auto path = Write(Bytes(128, 0));
+    const uint64_t max = std::numeric_limits<uint64_t>::max();
+    for (const auto& shape : std::vector<std::vector<uint64_t>>{
+             {}, {0}, {1, 0}, std::vector<uint64_t>(9, 1),
+             {max, 2}, {max / 4 + 1}, {max / 4}, {max / 8}}) {
+        SCOPED_TRACE(testing::PrintToString(shape));
+        const GgufTensorInfo info{"weight", shape, GgmlTypeF32, 0};
+        EXPECT_TRUE(ReadGgufTensorRaw(path, info, 0).empty());
+    }
+}
+
+TEST_F(GgufTest, RawTensorRejectsIncompleteQuantizationBlocks) {
+    const auto path = Write(Bytes(128, 0));
+    for (uint32_t type : {GgmlTypeQ40, GgmlTypeQ41, GgmlTypeQ80}) {
+        SCOPED_TRACE(type);
+        for (const auto& shape : std::vector<std::vector<uint64_t>>{{31}, {33}, {16, 3}}) {
+            SCOPED_TRACE(testing::PrintToString(shape));
+            const GgufTensorInfo info{"weight", shape, type, 0};
+            EXPECT_TRUE(ReadGgufTensorRaw(path, info, 0).empty());
+        }
+    }
+}
+
+TEST_F(GgufTest, RawTensorReturnsEmptyForUnsupportedType) {
+    const auto path = Write(Bytes(128, 0));
+    for (uint32_t type : {4u, 999u, std::numeric_limits<uint32_t>::max()}) {
+        SCOPED_TRACE(type);
+        const GgufTensorInfo info{"weight", {1}, type, 0};
+        EXPECT_TRUE(ReadGgufTensorRaw(path, info, 0).empty());
+    }
+}
+
+TEST_F(GgufTest, RawTensorRejectsInvalidOffsets) {
+    const auto path = Write(Bytes(64, 0));
+    const uint64_t max = std::numeric_limits<uint64_t>::max();
+    const auto max_stream_offset =
+        static_cast<uint64_t>(std::numeric_limits<std::streamoff>::max());
+    for (const auto& offsets : std::vector<std::pair<uint64_t, uint64_t>>{
+             {max, 1}, {0, max}, {max_stream_offset, 1}, {max_stream_offset, 0},
+             {0, 64}, {60, 1}, {65, 0}}) {
+        SCOPED_TRACE(offsets.first);
+        SCOPED_TRACE(offsets.second);
+        const GgufTensorInfo info{"weight", {1}, GgmlTypeF32, offsets.second};
+        EXPECT_TRUE(ReadGgufTensorRaw(path, info, offsets.first).empty());
+    }
 }
 
 TEST_F(GgufTest, ReadsTypedIntegerMetadata) {

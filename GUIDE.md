@@ -25,11 +25,11 @@ mini_llama/
 │   ├── ops.h                       # 六个 F32 基础算子的接口、RoPE 辅助函数与形状约定
 │   ├── model.h                     # ModelConfig、LayerWeights 与 Model 的 F32 权重结构
 │   ├── loader.h                    # ModelDescriptor、枚举元信息、ParseDescriptor 与 LoadModel 接口
-│   ├── gguf.h                      # GGUF v3 元数据/张量信息、GgufReader、InspectGguf 与 v2/v3 类型化元数据读取接口
-│   ├── gguf_loader.h               # GGUF 张量名称映射、BuildConfig 配置构建与 LoadGgufModel 接口
+│   ├── gguf.h                      # GGUF v3 元数据/张量信息、GgufReader、InspectGguf、v2/v3 类型化元数据与原始张量读取接口
+│   ├── gguf_loader.h               # GGUF 张量名称映射、BuildConfig 配置构建与 F32/F16/Q8_0/Q4_0/Q4_1 模型加载接口
 │   ├── batch.h                     # Batch：单 token/序列批次构造、GetToken/GetPos 按下标查询 token 与位置
 │   ├── chat.h                      # ChatRole、ChatMessage 与只读角色名转换；ChatSession 会话状态接口
-│   ├── prompt_builder.h            # PromptBuilder：纯文本、内置 Qwen2 与简化 Jinja 模板接口
+│   ├── prompt_builder.h            # PromptBuilder：纯文本、内置 Qwen2、简化 Jinja 及 GGUF 模板读取接口
 │   ├── terminal.h                  # Terminal：提示符、逐行输入、token 输出、帮助、统计与参数展示接口
 │   ├── context.h                   # Context：绑定模型，按配置初始化独立 KV cache 与请求状态
 │   ├── forward.h                   # 仅公开 ForwardBatch 批次前向接口，单 token 使用 Batch 构造
@@ -45,11 +45,11 @@ mini_llama/
 │   ├── forward.cpp                 # 批次输入检查、CPU 注意力与 SwiGlu/FFN 前向；ForwardToken 为内部函数
 │   ├── sampler.cpp                 # 已接入静态库的贪心、温度与 Top-k 采样；Sample 按参数分派并校验输入
 │   ├── chat.cpp                    # 已接入静态库的会话消息、token 历史、前缀缓存与累计统计；使用 ChatRole 枚举
-│   ├── prompt_builder.cpp          # 已接入静态库的提示词构建与课程简化 Jinja 解释器；角色名复用 RoleToString
+│   ├── prompt_builder.cpp          # 已接入静态库的提示词构建、课程简化 Jinja 解释器与 GGUF 模板读取/Qwen2 架构回退；角色名复用 RoleToString
 │   ├── terminal.cpp                # 已接入静态库的终端输入输出；数值展示不修改 stdout 的浮点格式
 │   ├── loader.cpp                  # 模型描述解析、枚举映射与完整性检查；按 TensorId 读取全局/逐层 F32 权重，LoadFailure 返回并记录加载错误
-│   ├── gguf.cpp                    # 已接入静态库的 GGUF v3 结构解析、张量边界检查、信息打印和 v2/v3 类型化元数据读取；原始张量读取仍为占位
-│   ├── gguf_loader.cpp             # GGUF 模型加载主流程、输出权重回退与全局/逐层形状校验；形状映射及权重解码仍为占位，在 gguf_loader_tests 中编译
+│   ├── gguf.cpp                    # 已接入静态库的 GGUF v3 结构解析、张量边界检查、信息打印、v2/v3 类型化元数据与 F32/F16/Q4_0/Q4_1/Q8_0 原始张量读取
+│   ├── gguf_loader.cpp             # 已接入静态库的 GGUF 模型加载，完成形状映射、F32/F16/量化块解码、可选偏置、输出权重回退和全局/逐层校验
 │   ├── batch.cpp                   # 批次 token 复制、保存起始位置并按下标计算连续位置；当前仅在 batch_tests 中编译
 │   ├── kv_cache.cpp                # KV cache 实现；当前在 kv_cache_tests/context_tests/forward_tests 中编译
 │   ├── radix_tree.cpp              # 已接入静态库的 RadixTree 实现，支持节点分裂、清空和移动
@@ -68,21 +68,21 @@ mini_llama/
 │       ├── special_tokens.json     # BOS/EOS/UNK/PAD ID，缺省为 -1
 │       └── chat_template.txt      # GGUF 中存在时导出的原始模板
 ├── test/                          # GoogleTest 单元测试与 Python 脚本测试
-│   ├── CMakeLists.txt              # 下载 GoogleTest、构建十七个测试程序、注册 CTest 并部署 MinGW 运行库
+│   ├── CMakeLists.txt              # 下载 GoogleTest、构建十八个测试程序、注册 CTest 并部署 MinGW 运行库
 │   ├── test_tensor.cpp             # Tensor 访问、AssertShape、Reshape 移植与边界测试
 │   ├── test_ops.cpp                # 六个已实现基础算子的数值、形状与边界验收，CTest 标签 ops
 │   ├── test_sampler.cpp            # Sample 分派、Top-k 范围、并列、种子、温度权重与输入边界的 21 项测试，CTest 标签 sampler
 │   ├── test_chat.cpp               # ChatMessage/ChatSession 的 7 项移植测试及 5 项补充测试，CTest 标签 chat
-│   ├── test_prompt_builder.cpp     # 纯文本/Qwen2、Jinja 渲染及边界、会话与分词器衔接测试，CTest 标签 prompt_builder
+│   ├── test_prompt_builder.cpp     # 纯文本/Qwen2、Jinja 渲染及边界、GGUF v2/v3 模板加载/架构回退、会话与分词器衔接测试，CTest 标签 prompt_builder
 │   ├── test_terminal.cpp           # Terminal 的 7 项移植测试及 7 项补充测试，覆盖输出、刷新、逐行输入与 EOF，CTest 标签 terminal
 │   ├── test_tokenizer.cpp          # ASCII/JSON/BPE 与工厂测试，自建词表，CTest 标签 tokenizer
 │   ├── test_export_gguf_tokenizer.py # 自建 GGUF 验证 Python 导出 CLI、UTF-8/转义、顺序与无效输入；独立运行
 │   ├── test_loader.cpp             # 自建两层 GQA 描述和权重，覆盖元信息、全局/逐层赋值、乱序偏移及加载失败返回与日志，CTest 标签 loader
 │   ├── gguf_fixture.h             # 自建 GGUF v3 字节夹具及字符串/整数数组构造，独立临时目录与清理
-│   ├── test_gguf.cpp              # 15 项移植测试及元数据、数组、存储大小、溢出、信息打印和类型化读取补充测试，CTest 标签 gguf
+│   ├── test_gguf.cpp              # 15 项移植测试及元数据、数组、存储大小、溢出、信息打印、类型化读取和 8 项原始张量读取补充测试，CTest 标签 gguf
 │   ├── test_gguf_tokenizer.cpp    # 20 项独立夹具测试及 2 项可选本地模型/BPE 对比，CTest 标签 gguf_tokenizer
-│   ├── test_gguf_loader.cpp       # 全局/逐层/偏置名称映射与解析、配置失败返回测试，CTest 标签 gguf_loader
-│   ├── test_gguf_shapes.cpp       # 直接包含加载器实现，验证 GQA、必需权重与可选偏置的形状，CTest 标签 gguf_loader
+│   ├── test_gguf_loader.cpp       # 名称映射、五种格式完整模型加载、GQA/偏置、输出权重回退、异常返回及 ForwardBatch 测试，CTest 标签 gguf_loader
+│   ├── test_gguf_shapes.cpp       # 独立测试目标，直接包含加载器实现，验证形状映射、F16 特殊值、量化块数值/布局、边界和权重形状，CTest 标签 gguf_loader
 │   ├── test_kv_cache.cpp           # 移植课程 KV cache 的 6 项测试，CTest 标签 kv_cache
 │   ├── test_radix_tree.cpp         # RadixTree 的 8 项移植测试及 7 项补充测试，CTest 标签 radix_tree
 │   ├── test_batch.cpp              # 批次构造与下标查询的 4 项移植测试及 3 项补充测试，CTest 标签 batch
@@ -108,6 +108,8 @@ mini_llama/
 │   │   ├── test/ops_tests.exe      # 基础算子测试程序
 │   │   ├── test/tokenizer_tests.exe # tokenizer 测试程序
 │   │   ├── test/gguf_tokenizer_tests.exe # GGUF tokenizer 测试程序
+│   │   ├── test/gguf_loader_tests.exe # GGUF 加载与前向衔接测试程序
+│   │   ├── test/gguf_shape_tests.exe # GGUF 内部形状映射、解码和校验测试程序
 │   │   ├── test/loader_tests.exe    # 模型描述解析测试程序
 │   │   ├── test/kv_cache_tests.exe # KV cache 测试程序
 │   │   ├── test/radix_tree_tests.exe # RadixTree 测试程序

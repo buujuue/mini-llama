@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "gguf.h"
+
 struct EvalContext {
     const std::vector<ChatMessage>* messages = nullptr;
     const ChatMessage* current_message = nullptr;
@@ -422,4 +424,18 @@ std::string PromptBuilder::BuildQwen2(const std::vector<ChatMessage>& messages) 
 
     prompt += "<|im_start|>assistant\n";
     return prompt;
+}
+
+std::string LoadChatTemplateFromGguf(const std::string& gguf_path) {
+    std::string tmpl;
+    if (GgufGetMetadataString(gguf_path, "tokenizer.chat_template", tmpl)) {
+        return tmpl;
+    }
+
+    std::string architecture;
+    if (GgufGetMetadataString(gguf_path, "general.architecture", architecture) &&
+        architecture == "qwen2") {
+        return "qwen2";
+    }
+    return "";
 }

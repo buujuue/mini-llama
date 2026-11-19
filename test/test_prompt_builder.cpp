@@ -7,13 +7,14 @@
 #include <utility>
 #include <vector>
 
+#include "gguf_fixture.h"
+#include "gguf_tokenizer.h"
 #include "prompt_builder.h"
 #include "tokenizer.h"
 
 namespace {
 
-// 与课程 tests/gguf_tokenizer_fixture.h 中的 TinyQwen2Template 相同，
-// 直接传入模板文本，不依赖尚未移植的 GGUF 读取模块。
+// 与课程 tests/gguf_tokenizer_fixture.h 中的 TinyQwen2Template 相同。
 const std::string kQwen2Template =
     "{% for message in messages %}{% if loop.first and "
     "messages[0]['role'] != 'system' %}{{ '<|im_start|>system\nYou are a "
@@ -21,6 +22,10 @@ const std::string kQwen2Template =
     "message['role'] + '\n' + message['content'] + '<|im_end|>' + "
     "'\n'}}{% endfor %}{% if add_generation_prompt %}{{ "
     "'<|im_start|>assistant\n' }}{% endif %}";
+
+using namespace mini_llama::test;
+
+class ChatTemplateTest : public GgufFileTest {};
 
 }  // namespace
 
@@ -225,4 +230,145 @@ TEST(PromptBuilderTest, SessionPromptCanBeTokenizedWithoutChangingState) {
     EXPECT_EQ(session.total_prompt_tokens, 2);
     EXPECT_EQ(session.total_generated_tokens, 1);
     EXPECT_DOUBLE_EQ(session.total_time_ms, 3.0);
+}
+
+// 适配课程 tests/gtest/test_gguf_tokenizer.cc 中的 GGUF 模板加载测试。
+TEST_F(ChatTemplateTest, LoadsTemplateFromGguf) {
+    const std::string path = Write(MakeGguf({
+        {"general.architecture", GgufTypeString, StringValue("qwen2")},
+        {"tokenizer.chat_template", GgufTypeString, StringValue(kQwen2Template)},
+    }, {}));
+    const std::string tmpl = LoadChatTemplateFromGguf(path);
+    EXPECT_EQ(tmpl, kQwen2Template);
+    PromptBuilder builder;
+    builder.SetChatTemplate(tmpl);
+    EXPECT_EQ(builder.Build({{ChatRole::user, "Hello"}}),
+              "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+              "<|im_start|>user\nHello<|im_end|>\n"
+              "<|im_start|>assistant\n");
+}
+
+TEST_F(ChatTemplateTest, KeepsExistingSystemMessage) {
+    const std::string path = Write(MakeGguf({
+        {"tokenizer.chat_template", GgufTypeString, StringValue(kQwen2Template)},
+    }, {}));
+    PromptBuilder builder;
+    builder.SetChatTemplate(LoadChatTemplateFromGguf(path));
+    EXPECT_EQ(builder.Build({{ChatRole::system, "You are a coding assistant."},
+                             {ChatRole::user, "Write a hello world program."}}),
+              "<|im_start|>system\nYou are a coding assistant.<|im_end|>\n"
+              "<|im_start|>user\nWrite a hello world program.<|im_end|>\n"
+              "<|im_start|>assistant\n");
+}
+
+TEST_F(ChatTemplateTest, MissingTemplateUsesArchFallbackOnly) {
+    for (const std::string architecture : {"qwen2", "llama", "qwen3", "Qwen2", ""}) {
+        SCOPED_TRACE(architecture);
+        const std::string path = Write(MakeGguf({
+            {"general.architecture", GgufTypeString, StringValue(architecture)},
+        }, {}));
+        const std::string tmpl = LoadChatTemplateFromGguf(path);
+        EXPECT_EQ(tmpl, architecture == "qwen2" ? "qwen2" : "");
+        PromptBuilder builder;
+        builder.SetChatTemplate(tmpl);
+        const std::string expected = architecture == "qwen2"
+            ? "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+              "<|im_start|>user\nHi<|im_end|>\n<|im_start|>assistant\n"
+            : "User: Hi\nAssistant:";
+        EXPECT_EQ(builder.Build({{ChatRole::user, "Hi"}}), expected);
+    }
+    EXPECT_TRUE(LoadChatTemplateFromGguf(Write(MakeGguf({}, {}))).empty());
+}
+
+TEST_F(ChatTemplateTest, RawTemplateTakesPrecedenceOverArchitecture) {
+    const std::string tmpl = "{{ '自定义\r\n' + messages[0]['content'] }}";
+    const std::string path = Write(MakeGguf({
+        {"general.architecture", GgufTypeString, StringValue("qwen2")},
+        {"tokenizer.chat_template", GgufTypeString, StringValue(tmpl)},
+    }, {}));
+    EXPECT_EQ(LoadChatTemplateFromGguf(path), tmpl);
+    PromptBuilder builder;
+    builder.SetChatTemplate(LoadChatTemplateFromGguf(path));
+    EXPECT_EQ(builder.Build({{ChatRole::user, "你好"}}), "自定义\r\n你好");
+}
+
+TEST_F(ChatTemplateTest, ExplicitEmptyTemplateKeepsPlainMode) {
+    const std::string path = Write(MakeGguf({
+        {"general.architecture", GgufTypeString, StringValue("qwen2")},
+        {"tokenizer.chat_template", GgufTypeString, StringValue("")},
+    }, {}));
+    EXPECT_TRUE(LoadChatTemplateFromGguf(path).empty());
+    PromptBuilder builder;
+    builder.SetChatTemplate(LoadChatTemplateFromGguf(path));
+    EXPECT_EQ(builder.Build({{ChatRole::user, "Hello"}}), "User: Hello\nAssistant:");
+}
+
+TEST_F(ChatTemplateTest, WrongTemplateTypeUsesArchFallback) {
+    for (const std::string architecture : {"qwen2", "llama"}) {
+        SCOPED_TRACE(architecture);
+        const std::string path = Write(MakeGguf({
+            {"general.architecture", GgufTypeString, StringValue(architecture)},
+            {"tokenizer.chat_template", GgufTypeUint32, IntegerValue(42)},
+        }, {}));
+        EXPECT_EQ(LoadChatTemplateFromGguf(path), architecture == "qwen2" ? "qwen2" : "");
+    }
+    EXPECT_TRUE(LoadChatTemplateFromGguf(Write(MakeGguf({
+        {"general.architecture", GgufTypeUint32, IntegerValue(2)},
+    }, {}))).empty());
+}
+
+TEST_F(ChatTemplateTest, SupportsGgufV2AndV3) {
+    for (uint32_t version : {2u, 3u}) {
+        SCOPED_TRACE(version);
+        auto data = MakeGguf({
+            {"general.architecture", GgufTypeString, StringValue("qwen2")},
+            {"tokenizer.chat_template", GgufTypeString, StringValue(kQwen2Template)},
+        }, {});
+        WriteLe(data, 4, version, 4);
+        EXPECT_EQ(LoadChatTemplateFromGguf(Write(data)), kQwen2Template);
+        data = MakeGguf({
+            {"general.architecture", GgufTypeString, StringValue("qwen2")},
+        }, {});
+        WriteLe(data, 4, version, 4);
+        EXPECT_EQ(LoadChatTemplateFromGguf(Write(data)), "qwen2");
+    }
+}
+
+TEST_F(ChatTemplateTest, MissingOrMalformedFileReturnsEmpty) {
+    EXPECT_TRUE(LoadChatTemplateFromGguf(missing_path_.string()).empty());
+    EXPECT_TRUE(LoadChatTemplateFromGguf(Write({'b', 'a', 'd'})).empty());
+    // 即使已读到 qwen2 架构，后续模板元数据截断也不能触发架构回退。
+    auto data = MakeGguf({
+        {"general.architecture", GgufTypeString, StringValue("qwen2")},
+        {"tokenizer.chat_template", GgufTypeString, StringValue(kQwen2Template)},
+    }, {}, 0, 1);
+    data.pop_back();
+    EXPECT_TRUE(LoadChatTemplateFromGguf(Write(data)).empty());
+}
+
+TEST_F(ChatTemplateTest, LoadedPromptCanBeEncodedByGgufTokenizer) {
+    const std::string path = Write(MakeGguf({
+        {"general.architecture", GgufTypeString, StringValue("qwen2")},
+        {"tokenizer.chat_template", GgufTypeString, StringValue(kQwen2Template)},
+        {"tokenizer.ggml.model", GgufTypeString, StringValue("gpt2")},
+        {"tokenizer.ggml.tokens", GgufTypeArray, StringArrayValue({
+            "a", "b", "ab", "<|im_start|>", "<|im_end|>", "s", "y", "t",
+            "e", "m", "u", "r", "i", "n", "Ċ"})},
+        {"tokenizer.ggml.token_type", GgufTypeArray,
+         IntArrayValue({1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1})},
+        {"tokenizer.ggml.merges", GgufTypeArray, StringArrayValue({"a b"})},
+    }, {}));
+    PromptBuilder builder;
+    builder.SetChatTemplate(LoadChatTemplateFromGguf(path));
+    const auto tokenizer = CreateGgufTokenizer(path);
+    ASSERT_NE(tokenizer, nullptr);
+    const std::string prompt = builder.Build({{ChatRole::system, "a"}, {ChatRole::user, "ab"}});
+    EXPECT_EQ(prompt, "<|im_start|>system\na<|im_end|>\n"
+                      "<|im_start|>user\nab<|im_end|>\n<|im_start|>assistant\n");
+    const auto tokens = tokenizer->Encode(prompt);
+    EXPECT_EQ(tokens, (std::vector<int>{
+        3, 5, 6, 5, 7, 8, 9, 14, 0, 4, 14,
+        3, 10, 5, 8, 11, 14, 2, 4, 14,
+        3, 0, 5, 5, 12, 5, 7, 0, 13, 7, 14}));
+    EXPECT_EQ(tokenizer->Decode(tokens), prompt);
 }

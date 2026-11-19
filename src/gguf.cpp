@@ -1,6 +1,6 @@
 // Copyright (c) 2026 yus3nable
 // SPDX-License-Identifier: MIT
-// GGUF 值读取、类型名、加载校验与信息打印适配自 mini-llama-cpp/src/gguf.cc。
+// GGUF 值读取、类型名、加载校验、信息打印与原始张量读取适配自 mini-llama-cpp/src/gguf.cc。
 
 #include "gguf.h"
 #include <cstdint>
@@ -810,7 +810,57 @@ bool GgufGetMetadataIntArray(const std::string& path, const std::string& key,
 }
 
 std::vector<uint8_t> ReadGgufTensorRaw(const std::string& path,
-                                     const GgufTensorInfo& info, uint64_t) {
-    throw std::runtime_error("未完成：ReadGgufTensorRaw 原始张量读取，路径: " + path
-                             + "，张量: " + info.name);
+                                     const GgufTensorInfo& info, uint64_t data_offset) {
+    std::vector<uint8_t> result;
+    // 将类型错误转换为空数组，遵循原始张量读取接口的失败约定。
+    switch (info.type) {
+        case GgmlTypeF32:
+        case GgmlTypeF16:
+        case GgmlTypeQ40:
+        case GgmlTypeQ41:
+        case GgmlTypeQ80:
+            break;
+        default:
+            return result;
+    }
+
+    uint64_t tensor_size = 0;
+    if (!TensorDataSize(info, tensor_size) || tensor_size == 0 ||
+        tensor_size > static_cast<uint64_t>(std::numeric_limits<std::streamsize>::max()) ||
+        tensor_size > static_cast<uint64_t>(result.max_size())) {
+        return result;
+    }
+
+    uint64_t tensor_start = 0;
+    if (!AddChecked(data_offset, info.offset, tensor_start) ||
+        tensor_start > static_cast<uint64_t>(std::numeric_limits<std::streamoff>::max())) {
+        return result;
+    }
+
+    std::ifstream f(path, std::ios::binary | std::ios::ate);
+    if (!f.is_open()) {
+        return result;
+    }
+
+    // 分配内存前校验完整数据范围，用减法避免计算张量终点时溢出。
+    const std::streampos end = f.tellg();
+    if (end < 0) {
+        return result;
+    }
+    const uint64_t file_size = static_cast<uint64_t>(end);
+    if (tensor_start > file_size || tensor_size > file_size - tensor_start) {
+        return result;
+    }
+
+    f.seekg(static_cast<std::streamoff>(tensor_start), std::ios::beg);
+    if (!f.good()) {
+        return result;
+    }
+
+    result.resize(static_cast<size_t>(tensor_size));
+    f.read(reinterpret_cast<char*>(result.data()), static_cast<std::streamsize>(tensor_size));
+    if (static_cast<uint64_t>(f.gcount()) != tensor_size) {
+        result.clear();
+    }
+    return result;
 }
